@@ -18,3 +18,12 @@ print('Brutus: "Sag pi = ' + str(pi) + ' oder stirb!"')
 
 c = f'Brutus: "Sag pi = {pi} oder stirb!"'
 print(c)
+
+# erstelle ein kleine python programm dass eine schöne ASCII Tabbelle von A-Z bzw a-z erstellt
+print("ASCII-Tabelle für a-z:")
+for c in range(ord('a'), ord('z') + 1):
+    print(f"{chr(c)} -> {c}")
+
+print("\nASCII-Tabelle für A-Z:")
+for c in range(ord('A'), ord('Z') + 1):
+    print(f"{chr(c)} -> {c}")
