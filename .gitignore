@@ -1,0 +1,13 @@
+# Python Cache
+__pycache__/
+*.pyc
+
+# VS Code Einstellungen
+.vscode/
+
+# Einstellungen für Github-Copilot
+.github/
+
+# Virtuelle Umgebungen
+venv/
+.env/
