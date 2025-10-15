@@ -5,9 +5,6 @@ __pycache__/
 # VS Code Einstellungen
 .vscode/
 
-# Einstellungen für Github-Copilot
-.github/
-
 # Virtuelle Umgebungen
 venv/
 .venv/
