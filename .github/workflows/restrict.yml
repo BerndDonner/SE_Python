@@ -6,10 +6,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Verify file paths
         run: |
+          # Wenn kein vorheriger Commit existiert (z. B. neuer Branch), abbrechen
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "ℹ️ Neuer Branch oder erster Commit – keine Prüfung notwendig."
+            exit 0
+          fi
+
           CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          # .github darf geändert werden (für Actions)
+          echo "🔍 Geänderte Dateien:"
+          echo "$CHANGED"
+
+          # Ausnahme: .github darf geändert werden (für Actions)
           if echo "$CHANGED" | grep -v "^${{ github.actor }}/" | grep -qv "^.github/"; then
             echo "❌ Commit enthält Dateien außerhalb deines Verzeichnisses!"
             echo "Erlaubt ist nur: ${{ github.actor }}/"
