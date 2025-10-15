@@ -1,0 +1,17 @@
+name: Restrict student commits
+on: [push]
+
+jobs:
+  check-paths:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify file paths
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          # .github darf geändert werden (für Actions)
+          if echo "$CHANGED" | grep -v "^${{ github.actor }}/" | grep -qv "^.github/"; then
+            echo "❌ Commit enthält Dateien außerhalb deines Verzeichnisses!"
+            echo "Erlaubt ist nur: ${{ github.actor }}/"
+            exit 1
+          fi
