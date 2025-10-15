@@ -14,11 +14,9 @@ jobs:
           echo "👤 Benutzer: ${{ github.actor }}"
           echo "🔍 Branch: ${{ github.ref_name }}"
 
-          CHANGED=""
-
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            echo "ℹ️ Neuer Branch oder erster Commit – eingeschränkte Prüfung."
-            CHANGED=$(git ls-tree -r --name-only HEAD)
+            echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien."
+            CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD)
           else
             CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           fi
@@ -26,11 +24,15 @@ jobs:
           echo "📄 Geänderte / hinzugefügte Dateien:"
           echo "$CHANGED"
 
-          # Ausnahme: .github darf geändert werden (für Actions)
-          if echo "$CHANGED" | grep -v "^${{ github.actor }}/" | grep -qv "^.github/"; then
+          actor_lower=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
+          violations=$(echo "$CHANGED" | grep -viE "^${actor_lower}/|^\.github/|^$" || true)
+
+          if [ -n "$violations" ]; then
             echo "❌ Commit enthält Dateien außerhalb deines Verzeichnisses!"
-            echo "Erlaubt ist nur: ${{ github.actor }}/"
+            echo "👤 Erlaubt ist nur: ${actor_lower}/"
+            echo "🚫 Nicht erlaubte Dateien:"
+            echo "$violations"
             exit 1
           fi
 
-          echo "✅ Alle Änderungen befinden sich im erlaubten Bereich."
+          echo "✅ Alle Änderungen befinden sich im erlaubten Bereich (${actor_lower}/)."
