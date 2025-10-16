@@ -14,6 +14,7 @@ jobs:
           echo "👤 Benutzer: ${{ github.actor }}"
           echo "🔍 Branch: ${{ github.ref_name }}"
 
+          # 🧩 Sonderfall: erster Commit oder neuer Branch
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
             echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien."
             CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD)
@@ -24,8 +25,17 @@ jobs:
           echo "📄 Geänderte / hinzugefügte Dateien:"
           echo "$CHANGED"
 
+          # 🔓 Lehrer ist von der Prüfung ausgenommen
+          if [ "${{ github.actor }}" = "BerndDonner" ]; then
+            echo "🧑‍🏫 Lehrer erkannt – keine Pfadprüfung erforderlich."
+            exit 0
+          fi
+
+          # 🔠 Kleinbuchstaben für Vergleiche
           actor_lower=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
-          violations=$(echo "$CHANGED" | grep -viE "^${actor_lower}/|^\.github/|^$" || true)
+
+          # 🔍 Suche nach Verstößen: Dateien außerhalb des eigenen Verzeichnisses
+          violations=$(echo "$CHANGED" | grep -viE "^${actor_lower}/|^$" || true)
 
           if [ -n "$violations" ]; then
             echo "❌ Commit enthält Dateien außerhalb deines Verzeichnisses!"
