@@ -8,7 +8,7 @@
 import random
 
 # --- Vorbereitung: Karten mischen ---
-karten = ["🐍", "🐍", "🐢", "🐢", "🐸", "🐸", "🦋", "🦋"]
+karten = ["🐍", "🐍", "🐢", "🐢", "🐸", "🐸", "🦋", "🦋", "🐰", "🐰", "🦊", "🦊", "🐻", "🐻", "🐯", "🐯"]
 karte_unsichtbar = "??"
 random.shuffle(karten)
 
