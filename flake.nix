@@ -25,6 +25,7 @@
         inherit pkgs;
         inputs = { inherit nixos-config nixpkgs; };
         checkInputs = [ "nixos-config" ];
+        flakeLockPath = ./flake.lock;   # 🔹 absolute path from the project’s perspective
         symbol = "🐍";
         pythonVersion = pkgs.python3;
 
