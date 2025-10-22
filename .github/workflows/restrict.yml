@@ -1,20 +1,42 @@
 name: Restrict student commits
-on: [push]
+
+on: [push, pull_request]
 
 jobs:
   check-paths:
+    name: 🔒 Restrict student commits
     runs-on: ubuntu-latest
+
     steps:
+      # 🧩 Repository auschecken (vollständig)
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Verify file paths
+      # 🩺 Diagnose – zeigt Locale und Git-Version
+      - name: Check runner environment
         run: |
-          echo "👤 Benutzer: ${{ github.actor }}"
-          echo "🔍 Branch: ${{ github.ref_name }}"
+          echo "🌍 Aktuelle Locale:"
+          locale
+          echo
+          echo "💻 Git-Version:"
+          git --version
+          echo
+          echo "🔤 Encoding-Test:"
+          echo "Übung_Ärger_Ökonom.py"
+          echo
 
-          # 🧩 Sonderfall: erster Commit oder neuer Branch
+      # ✅ Hauptprüfung
+      - name: Verify changed file paths
+        run: |
+          # --- UTF-8-Locale aktivieren ---
+          export LANG=C.UTF-8
+          export LC_ALL=C.UTF-8
+
+          echo "👤 Benutzer: ${{ github.actor }}"
+          echo "🔍 Branch:  ${{ github.ref_name }}"
+
+          # --- Commit-Vergleich bestimmen ---
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
             echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien."
             CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD)
@@ -24,24 +46,34 @@ jobs:
 
           echo "📄 Geänderte / hinzugefügte Dateien:"
           echo "$CHANGED"
+          echo
 
-          # 🔓 Lehrer ist von der Prüfung ausgenommen
+          # --- Lehrer-Ausnahme ---
           if [ "${{ github.actor }}" = "BerndDonner" ]; then
             echo "🧑‍🏫 Lehrer erkannt – keine Pfadprüfung erforderlich."
             exit 0
           fi
 
-          # 🔠 Kleinbuchstaben für Vergleiche
+          # --- Actor-Namen in Kleinbuchstaben ---
           actor_lower=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
 
-          # 🔍 Suche nach Verstößen: Dateien außerhalb des eigenen Verzeichnisses
-          violations=$(echo "$CHANGED" | grep -viE "^${actor_lower}/|^$" || true)
+          # --- Optional: Gemeinsame Verzeichnisse erlauben ---
+          # Hier kannst du beliebige Ordner hinzufügen, die alle ändern dürfen
+          allowed_prefixes="^(${actor_lower}/|common/|shared/|README\.md|$)"
+
+          echo "🧩 Erlaubte Pfad-Präfixe: $allowed_prefixes"
+          echo
+
+          # --- Prüfen auf Verstöße ---
+          violations=$(echo "$CHANGED" | grep -Ev "$allowed_prefixes" || true)
 
           if [ -n "$violations" ]; then
             echo "❌ Commit enthält Dateien außerhalb deines Verzeichnisses!"
             echo "👤 Erlaubt ist nur: ${actor_lower}/"
             echo "🚫 Nicht erlaubte Dateien:"
             echo "$violations"
+            echo
+            echo "💡 Hinweis: Benenne dein persönliches Verzeichnis exakt wie dein GitHub-Login (${actor_lower})"
             exit 1
           fi
 
