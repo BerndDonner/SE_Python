@@ -1,0 +1,8 @@
+a = ["Benno","Anian","Lukas","Thomas","Antonia","Andy","Laurin"]
+
+for name in a:
+    print(name)
+
+
+for i in range(len(a)):
+    print(a[i])
