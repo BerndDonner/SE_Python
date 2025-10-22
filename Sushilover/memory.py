@@ -14,13 +14,12 @@ save_cards = [f"{i+1:2}" for i in range(len(memorycards))]
 print(memorycards)
 print(mystery_cards)
 while (punkte<((len(cards_all)+1)/2)):
-    wahl1 = int(input("Let´s play "))
+    wahl1 = int(input("First card "))
     listnumber1 = wahl1 -1
-
-    wahl2 = int(input("Second Card "))
-    listnumber2 = wahl2 -1
     mystery_cards[listnumber1] = memorycards[listnumber1]
     print(mystery_cards)
+    wahl2 = int(input("Second Card "))
+    listnumber2 = wahl2 -1
     mystery_cards[listnumber2] = memorycards[listnumber2]
     print(mystery_cards)
     versuche +=1
