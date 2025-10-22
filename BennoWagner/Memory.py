@@ -1,62 +1,74 @@
 import random
 
-counter_richtig = 0
+counter_richtig =0
 counter_falsch = 0
-memory_liste="\U0001F600 \U0001F602 \U0001F680 \U0001F40D \U0001F916"
-memory_liste_copy=memory_liste.split()
-memory_liste_copy=memory_liste_copy*2
-memory_liste_ausgabe = [f"{'\U0001F0A0':2}" for _ in range(len(memory_liste_copy))]
-Zahlen = [ f"{i+1:2}" for i in range (len(memory_liste_copy))]
+memory_kartenpool=("🐶", "🐱", "🦊", "🐻", "🐼",
+    "🐨", "🐯", "🦁", "🐸", "🐵",
+    "🐧", "🐦", "🦆", "🐤", "🦉",
+    "🐺", "🦄", "🐝", "🐞", "🦂")
 
-random.shuffle(memory_liste_copy)
+kartenbereich = int(input("Gib mir eine GERADE Zahl zwischen 2 und 20 für das Memory-Spiel: "))
 
-print(memory_liste_copy)
-print(Zahlen)
-print(memory_liste_ausgabe)
-print("Merke dir die Zuording!")
+if kartenbereich % 2 == 0 and 2 <= kartenbereich <= 20:
+
+  memory_liste_copy=list(memory_kartenpool)[:kartenbereich]
+  memory_liste_copy=memory_liste_copy*2
+  memory_liste_ausgabe = [f"{'\U0001F0A0':2}" for _ in range(len(memory_liste_copy))]
+  Zahlen = [ f"{i+1:2}" for i in range (len(memory_liste_copy))]
+
+  random.shuffle(memory_liste_copy)
+
+  print(memory_liste_copy)
+  print(memory_liste_ausgabe)
+  print(Zahlen)
+  print("Merke dir die Zuording!")
 
 
-taste = input("Drücke 'E' und Enter, um weiterzumachen: ")
+  taste = input("Drücke 'E' und Enter, um weiterzumachen: ")
 
-if taste.lower() == 'e':
-    print("\n" * 10)
-    print(memory_liste_ausgabe)
-    print(Zahlen)
+  if taste.lower() == 'e':
+      print("\n" * 10)
+      print("----" * 30)
+      print(f"{memory_liste_ausgabe}\tCounter Richtig:{counter_richtig} Counter Falsch:{counter_falsch}")
+      print(Zahlen)
 
-    for versuch in range(1, 11):
-      print("\n" * 3)
-      print("    ")
-      Auswahl = input("Welche Karten soll ich aufdecken? ")
-      karte1,karte2=Auswahl.split()
-      i1,i2=memory_liste_copy[int(karte1)-1],memory_liste_copy[int(karte2)-1]
+      for versuch in range(1, 11):
+        print("\n" * 4)
+        Auswahl = input("Welche Karten soll ich aufdecken? ")
+        print("----" * 30)
+        karte1,karte2=Auswahl.split()
+        i1,i2=memory_liste_copy[int(karte1)-1],memory_liste_copy[int(karte2)-1]
 
-      if(i1==i2):
-        print("Richtig")
-        memory_liste_ausgabe[int(karte1)-1],memory_liste_ausgabe[int(karte2)-1]=i1,i1  
-        print(memory_liste_ausgabe)
-        print(Zahlen)
-        print("")
+        if(i1==i2):
+          print("Richtig")
+          counter_richtig=counter_richtig+1
+          memory_liste_ausgabe[int(karte1)-1],memory_liste_ausgabe[int(karte2)-1]=i1,i1  
+          print("")
 
-      else:
-         print("falsch")
-         print(memory_liste_ausgabe)
-         print(Zahlen)
-         print("    ")
-   
+        else:
+          print("falsch")
+          counter_falsch=counter_falsch+1
+          print("    ")
+
+        print(f"{memory_liste_ausgabe}\tCounter Richtig:{counter_richtig} Counter Falsch:{counter_falsch}")
+        print(Zahlen) 
         
-      if f"{'\U0001F0A0':2}" not in memory_liste_ausgabe:
-           print("Gewonnen!")
-           break
-      
-      if(versuch>=10):
-         print("Verloren")   
-  
     
+          
+        if f"{'\U0001F0A0':2}" not in memory_liste_ausgabe:
+            print("Gewonnen!")
+            break
+        
+        if(versuch>=10):
+          print("Verloren")   
+    
+      
+
+  else:
+      print("Du hast nicht 'E' gedrückt.")
 
 else:
-    print("Du hast nicht 'E' gedrückt.")
-
-
+  print("Die Zahl ist nicht GERADE oder nicht im Bereich von 2 bis 20.")
 
 
 
