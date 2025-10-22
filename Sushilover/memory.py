@@ -3,12 +3,25 @@ import random #Bibliothek einfügen
 #Variablen zuweisen
 punkte = 0
 versuche = 0
+anzahl = 0
+auswahl = [""]
 
-#Karten erzeugen und mischen
-cards_all = "🍂 🎃 🦔 🌻 ☕ 🔥 🍎 🍄"
-memorycards = cards_all.split()
+#Spieler nach Kartenanzahl fragen
+print("Wie viele Paare magst du haben? Wähle zwischen 2-20")
+anzahl = int(input("Paaranzahl: "))
+
+#Karten erzeugen, mischen und anzeigen
+cards_autumn = ("🍂", "🍁", "🌰", "🎃", "🦔", "🌾", "☕", "🍎", "🥧", "🍄", "🧣", "🧤", "🪵", "🔥", "🌻", "🐿️", "🌽", "🌧️", "🕯️", "🍵")
+cards_christmas = ("🎄", "🎅", "🤶", "🦌", "🛷", "❄️", "⛄", "🎁", "🕯️", "🔔","🍪", "🥛", "🍭", "🧦", "🧣", "🕯️", "🌟", "🍷", "🪵", "🎶")
+selected_cards = random.sample(cards_autumn, anzahl) #random.sample wählt zufällig aus Tupel aus, anzahl sagt wie viele
+memorycards = list(selected_cards)
+test = memorycards
+print(test)
+test = memorycards[:]
+print(test)
 memorycards = memorycards * 2
 random.shuffle(memorycards)
+print("Das sind jetzt deine Karten: ", selected_cards)
 
 #Zahlen und Speicherlisten erzeugen
 mystery_cards = [f"{i+1:2}" for i in range(len(memorycards))]
@@ -17,7 +30,7 @@ save_cards = [f"{i+1:2}" for i in range(len(memorycards))]
 #print(memorycards)
 print(mystery_cards)
 
-while (punkte<((len(cards_all)+1)/2)):
+while (punkte<anzahl):
     wahl1 = int(input("First card ")) #Eingabe der 1. Karte
     listnumber1 = wahl1 -1
     mystery_cards[listnumber1] = memorycards[listnumber1] #Übernahme der Eingabe und Anzeige
