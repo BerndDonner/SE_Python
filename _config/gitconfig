@@ -29,5 +29,6 @@
     enabled = true
 
 [alias]
+    lg       = !git log --oneline --graph --decorate --all
     upmaster = !git fetch origin && git rebase origin/master && git push --force-with-lease
 
