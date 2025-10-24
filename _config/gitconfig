@@ -1,0 +1,33 @@
+# -------------------------------------------------------------
+# 🧩 Projektweite Git-Konfiguration
+# -------------------------------------------------------------
+# Diese Datei soll in der lokalen .git/config eingebunden werden:
+#
+#     git config --local include.path "../_config/gitconfig"
+#
+# Dabei bezeichnet "_config" das Unterverzeichnis,
+# in dem sich projektweite Einstellungen befinden (z. B. launch.json, settings.json).
+# 
+# Zweck:
+#  - Erzwingt einen sauberen Rebase-Workflow (keine Merge-Commits)
+#  - Bevorzugt den main-Branch bei Konflikten
+#  - Aktiviert Wiederverwendung von Konfliktlösungen (rerere)
+# -------------------------------------------------------------
+
+[pull]
+    rebase = true
+    ff = only
+
+[rebase]
+    autoStash = true
+    autoMergeStrategy = ours
+
+[merge]
+    conflictStyle = diff3
+
+[rerere]
+    enabled = true
+
+[alias]
+    upmaster = !git fetch origin && git rebase origin/master && git push --force-with-lease
+
