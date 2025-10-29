@@ -103,3 +103,6 @@ Es wurde für den Unterricht entwickelt, steht aber auch allen Interessierten of
 ---
 
 © 2025 Bernd Donner – Unterrichtsprojekt *Softwareentwicklung in Python*
+
+
+Das ist super wichtig
