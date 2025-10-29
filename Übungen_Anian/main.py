@@ -1,8 +1,7 @@
 import random
-Karten_alle = "🙂 🌍 🚀 🎶 🍀 "
-Memory = (Karten_alle.split())*2
-random.shuffle(Memory)
-Zahlen = [F"{i+1:2}"for i in range(len(Memory))]
+Karten_alle = ("🌹", "🐸", "🦋", "🍊" ,"⭐", "🌊", "🍀", "🦄", "🍎", "🌈", "🌻", "🐠", "🧡", "🐝", "🍇", "🔥", "🐧", "🌙", "🍋", "⚡")
+Memory = random.shuffle(list(Karten_alle * 2))
+Zahlen = (F"{i+1:2}"for i in range(len(Memory)))
 print("Willkommen zum Memory-Spiel!")
 print("Finde die Paare!")
 Spiel = ['❓'] * len(Memory)
@@ -10,7 +9,7 @@ print(Spiel)
 print(Zahlen)
 
 while '❓' in Spiel:
-    print("Wähle zwei Karten zum Aufdecken (1-10):")
+    print(f"Wähle zwei Karten zum Aufdecken (1-{len(Karten_alle)}):")
     Karte_1, Karte_2 = input().split()
     Karte_1 = int(Karte_1) - 1
     Karte_2 = int(Karte_2) - 1
