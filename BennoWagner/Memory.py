@@ -7,16 +7,26 @@ memory_kartenpool=("🐶", "🐱", "🦊", "🐻", "🐼",
     "🐧", "🐦", "🦆", "🐤", "🦉",
     "🐺", "🦄", "🐝", "🐞", "🦂")
 
-kartenbereich = int(input("Gib mir eine GERADE Zahl zwischen 2 und 20 für das Memory-Spiel: "))
+kartenbereich = int(input("Gib mir eine Zahl zwischen 2 und 20 für das Memory-Spiel: "))
 
-if kartenbereich % 2 == 0 and 2 <= kartenbereich <= 20:
+if 2 <= kartenbereich <= 20:
 
   memory_liste_copy=list(memory_kartenpool)[:kartenbereich]
   memory_liste_copy=memory_liste_copy*2
-  memory_liste_ausgabe = [f"{'\U0001F0A0':2}" for _ in range(len(memory_liste_copy))]
+  memory_liste_ausgabe =["🟦"]*kartenbereich+["🟥"]*kartenbereich
+  
+
+  kombiniert_memory=list(zip(memory_liste_copy,memory_liste_ausgabe))
+  random.shuffle(kombiniert_memory)
+  memory_liste_copy, memory_liste_ausgabe = zip(*kombiniert_memory)
+  memory_liste_ausgabe=list(memory_liste_ausgabe)
+  memory_liste_copy=list(memory_liste_copy)
+
+
+
   Zahlen = [ f"{i+1:2}" for i in range (len(memory_liste_copy))]
 
-  random.shuffle(memory_liste_copy)
+  
 
   print(memory_liste_copy)
   print(memory_liste_ausgabe)
@@ -42,6 +52,7 @@ if kartenbereich % 2 == 0 and 2 <= kartenbereich <= 20:
         if(i1==i2):
           print("Richtig")
           counter_richtig=counter_richtig+1
+          print(type(memory_liste_ausgabe))
           memory_liste_ausgabe[int(karte1)-1],memory_liste_ausgabe[int(karte2)-1]=i1,i1  
           print("")
 
@@ -55,7 +66,7 @@ if kartenbereich % 2 == 0 and 2 <= kartenbereich <= 20:
         
     
           
-        if f"{'\U0001F0A0':2}" not in memory_liste_ausgabe:
+        if f"🟦" not in memory_liste_ausgabe:
             print("Gewonnen!")
             break
         
