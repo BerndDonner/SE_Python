@@ -15,14 +15,22 @@ tmp = list(Karten_alle)
 print(tmp)
 random.shuffle(tmp)
 Karten_ausgewaehlt =tmp[:anzahlkarten]
-Karten=list(Karten_ausgewaehlt*2)   
+Karten_rueckseite=["🟦"]*len(Karten_ausgewaehlt)
+for i in range(len(Karten_ausgewaehlt)):
+    Karten_rueckseite.append("🟥")
+Karten=list(Karten_ausgewaehlt*2)
 Karten_pos = [f"{i+1:2}" for i in range(len(Karten))]
 random.shuffle(Karten)
-print(Karten)
+
+
 print(Karten_pos)
-versteckt = ["❓"] * len(Karten)
-print(versteckt)
-while "❓" in versteckt:
+
+#versteckt = ["❓"] * len(Karten)
+#🟦🟥
+print(Karten_rueckseite)
+
+
+while ("🟥") in Karten_rueckseite:
     auswahl = input("Zwei Karten auswählen (z.B. 1 2): ")
     parts = auswahl.split()
     if len(parts) != 2:
@@ -35,15 +43,15 @@ while "❓" in versteckt:
         continue
     karte1 -= 1
     karte2 -= 1
-    versteckt[karte1] = Karten[karte1]
-    versteckt[karte2] = Karten[karte2]
-    if versteckt[karte1] == versteckt[karte2]:
-        print(versteckt)
+    Karten_rueckseite[karte1] = Karten[karte1]
+    Karten_rueckseite[karte2] = Karten[karte2]
+    if Karten_rueckseite[karte1] == Karten_rueckseite[karte2]:
+        print(Karten_rueckseite)
         print("Treffer!")
     else:
-        print(versteckt)
+        print(Karten_rueckseite)
         input("Keine Übereinstimmung. Drücke Enter, um die Karten zu verbergen.")
-        versteckt[karte1] = "❓"
-        versteckt[karte2] = "❓"
-    print(versteckt)
+        Karten_rueckseite[karte1] = "❓"
+        Karten_rueckseite[karte2] = "❓"
+    print(Karten_rueckseite)
 print("Glückwunsch! Du hast alle Paare gefunden.")
