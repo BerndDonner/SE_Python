@@ -3,7 +3,6 @@
 
 # 1. Direkt als Unicode-Zeichen einfügen
 print("Direkte Emojis: 👋 🐍 🎮 👾")
-
 # 2. Unicode-Codepoints verwenden
 print("Unicode Codepoints:", "\U0001F44D")  # 👍 Daumen hoch
 
