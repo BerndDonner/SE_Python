@@ -2,7 +2,7 @@ import random
 
 
 Karten_symbole = "🐍  🐢  🐸  🦋 🎮 🔥 ✨ 🎯 🚀 👾 🐶 🐱 🐭 🐹 🐰 🦊 🍎 🍐 🍊 🍋 🍌 🍉 ⭐ 🌙 ☀️ ⚡ 🌈 ❄️"
-Karte_verdeckt = "🎴"  # Blumenspielkarte als verdeckte Karte
+Karte_verdeckt = "🎴","🃏"  # Blumenspielkarte als verdeckte Karte
 
 Kartendeck = Karten_symbole.split()
 Karten = Kartendeck
@@ -15,6 +15,10 @@ Karten = Karten[:FrageAnzahl]*2
 
 print("\n Mit diesen " ,FrageAnzahl, " Kartenpaaren spielen Sie jetzt Memory!\n", " ".join(Karten[:FrageAnzahl]))
 random.shuffle(Karten)
+
+while Karte_verdeckt in Karten:
+    
+
 
 Sichtbar = [Karte_verdeckt] * len(Karten)
 
