@@ -28,7 +28,7 @@ j = int(j)
 if i < 0 or i >= len(kombis) or j < 0 or j >= len(kombis) or i == j:
     print("Ungültige Indizes.")
 
-# TODO: überprüfen das Karten nich offen sind
+
 
 a, b = kombis[i]
 kombis[i] = (b, a)
