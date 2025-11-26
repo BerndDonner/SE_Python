@@ -1,4 +1,36 @@
 import random
+
+def spielfeld():
+    karten = [tupel[0] for tupel in kombis]
+    print("Karten: ", *karten)
+    print("Index:  ", end=" ")
+    for i in range(len(karten)):
+        print(f"{i:2}", end=" ")
+    print("\n")
+
+def karten_lesen_und_vergleichen():
+    i, j = input("Welche zwei Karten möchten Sie aufdecken (z. B. 0 1)? ").split()
+    i = int(i)
+    j = int(j)
+    if i < 0 or i >= len(kombis) or j < 0 or j >= len(kombis) or i == j or kombis[i] == karte_vorne or kombis[j] == karte_vorne:
+        print("Ungültige Indizes.")
+    else:
+        a, b = kombis[i]
+        kombis[i] = (b, a)
+        a, b = kombis[j]
+        kombis[j] = (b, a)
+
+    spielfeld()
+
+    if kombis[i][0] == kombis[j][0]:
+        print("Treffer!")
+    else:
+        print("Leider kein Treffer.")   
+        a, b = kombis[i]
+        kombis[i] = (b, a)      
+        a, b = kombis[j]
+        kombis[j] = (b, a)
+
 karte_vorne = ("🐍", "🐢", "🐸")
 karte_hinten  = ("🟦", "🟥")
 
@@ -8,21 +40,8 @@ for hinten in karte_hinten:
         kombis.append((hinten, vorne))    
 
 random.shuffle(kombis)
-karten = [tupel[0] for tupel in kombis]
-Zahlen = (f"{i+1:2}"for i in range(len(karten)))
-print("Willkommen bei Memory!")
-while '🟥' or '🟦' in karten:
-    print(*karten)
-    print(*Zahlen)
-    print("Wähle zwei Karten zum Aufdecken (1-6):")
-    Karte_1, Karte_2 = input().split()      
-    Karte_1 = int(Karte_1) - 1
-    Karte_2 = int(Karte_2) - 1
-    if karten[Karte_1][1] == karten[Karte_2][1]:
-        print("Paar gefunden!")
-    else:
-        print("Kein Paar. Versuche es erneut.")
 
-    print(karten)
-
+while any(kartenseite in karte_hinten for kartenseite in [tupel[0] for tupel in kombis]):
+    spielfeld()
+    karten_lesen_und_vergleichen()
 print("Glückwunsch, alle Paare gefunden!")
