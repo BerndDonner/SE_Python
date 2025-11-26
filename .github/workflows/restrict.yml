@@ -74,14 +74,14 @@ jobs:
             fi
 
             echo "ℹ️ workflow_dispatch: prüfe Diff von $FROM bis $TO"
-            CHANGED=$(git diff --name-only "$FROM" "$TO")
+            CHANGED=$(git -c core.quotepath=off diff --name-only "$FROM" "$TO")
           else
             if [ "$EVENT_BEFORE" = "0000000000000000000000000000000000000000" ]; then
               echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien (HEAD)."
-              CHANGED=$(git diff-tree --no-commit-id --name-only -r "$EVENT_SHA")
+              CHANGED=$(git -c core.quotepath=off diff-tree --no-commit-id --name-only -r "$EVENT_SHA")
             else
               echo "ℹ️ Prüfe Diff von $EVENT_BEFORE bis $EVENT_SHA"
-              CHANGED=$(git diff --name-only "$EVENT_BEFORE" "$EVENT_SHA")
+              CHANGED=$(git -c core.quotepath=off diff --name-only "$EVENT_BEFORE" "$EVENT_SHA")
             fi
           fi
 
