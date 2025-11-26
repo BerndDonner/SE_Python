@@ -1,6 +1,19 @@
 name: Restrict student commits
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      from_sha:
+        description: 'Optional: Basis-Commit für den Vergleich (Standard: HEAD^)'
+        required: false
+      to_sha:
+        description: 'Optional: Ziel-Commit für den Vergleich (Standard: HEAD)'
+        required: false
+      actor:
+        description: 'Optional: GitHub-Login, der geprüft werden soll (überschreibt github.actor)'
+        required: false
 
 jobs:
   check-paths:
@@ -28,21 +41,48 @@ jobs:
 
       # ✅ Hauptprüfung
       - name: Verify changed file paths
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          EVENT_SHA: ${{ github.sha }}
+          INPUT_FROM_SHA: ${{ inputs.from_sha }}
+          INPUT_TO_SHA: ${{ inputs.to_sha }}
+          INPUT_ACTOR: ${{ inputs.actor }}
         run: |
           # --- UTF-8-Locale aktivieren ---
           export LANG=C.UTF-8
           export LC_ALL=C.UTF-8
 
-          echo "👤 Benutzer: ${{ github.actor }}"
-          echo "🔍 Branch:  ${{ github.ref_name }}"
+          echo "👤 Benutzer (github.actor): $GITHUB_ACTOR"
+          echo "🔍 Branch:  $GITHUB_REF_NAME"
+          echo "📦 Event:   $GITHUB_EVENT_NAME"
           echo
 
           # --- Commit-Vergleich bestimmen ---
-          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien."
-            CHANGED=$(git diff-tree --no-commit-id --name-only -r HEAD)
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            FROM="$INPUT_FROM_SHA"
+            TO="$INPUT_TO_SHA"
+
+            # Standard: Vergleich HEAD^ -> HEAD
+            if [ -z "$TO" ]; then
+              TO="HEAD"
+            fi
+            if [ -z "$FROM" ]; then
+              FROM="${TO}^"
+            fi
+
+            echo "ℹ️ workflow_dispatch: prüfe Diff von $FROM bis $TO"
+            CHANGED=$(git diff --name-only "$FROM" "$TO")
           else
-            CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+            if [ "$EVENT_BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien (HEAD)."
+              CHANGED=$(git diff-tree --no-commit-id --name-only -r "$EVENT_SHA")
+            else
+              echo "ℹ️ Prüfe Diff von $EVENT_BEFORE bis $EVENT_SHA"
+              CHANGED=$(git diff --name-only "$EVENT_BEFORE" "$EVENT_SHA")
+            fi
           fi
 
           echo "📄 Geänderte / hinzugefügte Dateien:"
@@ -55,19 +95,23 @@ jobs:
             exit 0
           fi
 
+          # --- Actor bestimmen (ggf. Override bei workflow_dispatch) ---
+          actor="$GITHUB_ACTOR"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ -n "$INPUT_ACTOR" ]; then
+            echo "ℹ️ Actor-Override aktiv: $INPUT_ACTOR"
+            actor="$INPUT_ACTOR"
+          fi
+
           # --- Lehrer-Ausnahme ---
-          if [ "${{ github.actor }}" = "BerndDonner" ]; then
+          if [ "$actor" = "BerndDonner" ]; then
             echo "🧑‍🏫 Lehrer erkannt – keine Pfadprüfung erforderlich."
             exit 0
           fi
 
-          # --- Actor-Namen exakt wie GitHub-Login verwenden ---
-          actor="${{ github.actor }}"
+          # --- Actor-Ordner / erlaubte Pfade ---
           echo "👤 Erwarteter Benutzer-Ordner: ${actor}/"
           echo
 
-          # --- Optional: Gemeinsame Verzeichnisse erlauben ---
-          # Hier kannst du beliebige Pfade hinzufügen, die alle ändern dürfen
           # ^...   = nur am Anfang der Zeile
           # actor/ = persönlicher Ordner
           # common/, shared/ = gemeinsame Ordner
