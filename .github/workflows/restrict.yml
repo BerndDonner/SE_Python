@@ -35,6 +35,7 @@ jobs:
 
           echo "👤 Benutzer: ${{ github.actor }}"
           echo "🔍 Branch:  ${{ github.ref_name }}"
+          echo
 
           # --- Commit-Vergleich bestimmen ---
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
@@ -48,33 +49,49 @@ jobs:
           echo "$CHANGED"
           echo
 
+          # Wenn nichts geändert wurde, ist alles gut
+          if [ -z "$CHANGED" ]; then
+            echo "✅ Keine geänderten Dateien gefunden."
+            exit 0
+          fi
+
           # --- Lehrer-Ausnahme ---
           if [ "${{ github.actor }}" = "BerndDonner" ]; then
             echo "🧑‍🏫 Lehrer erkannt – keine Pfadprüfung erforderlich."
             exit 0
           fi
 
-          # --- Actor-Namen in Kleinbuchstaben ---
-          actor_lower=$(echo "${{ github.actor }}" | tr '[:upper:]' '[:lower:]')
+          # --- Actor-Namen exakt wie GitHub-Login verwenden ---
+          actor="${{ github.actor }}"
+          echo "👤 Erwarteter Benutzer-Ordner: ${actor}/"
+          echo
 
           # --- Optional: Gemeinsame Verzeichnisse erlauben ---
-          # Hier kannst du beliebige Ordner hinzufügen, die alle ändern dürfen
-          allowed_prefixes="^(${actor_lower}/|common/|shared/|README\.md|$)"
+          # Hier kannst du beliebige Pfade hinzufügen, die alle ändern dürfen
+          # ^...   = nur am Anfang der Zeile
+          # actor/ = persönlicher Ordner
+          # common/, shared/ = gemeinsame Ordner
+          # README.md = global erlaubt
+          # $        = Leerzeilen (zur Sicherheit)
+          allowed_prefixes="^(${actor}/|common/|shared/|README\.md|$)"
 
-          echo "🧩 Erlaubte Pfad-Präfixe: $allowed_prefixes"
+          echo "🧩 Erlaubte Pfad-Präfixe (Regex): $allowed_prefixes"
           echo
 
           # --- Prüfen auf Verstöße ---
+          # grep -E  = regulärer Ausdruck
+          # -v       = alles, was NICHT passt
+          # || true  = Fehlercode von grep ignorieren, wenn nichts gefunden
           violations=$(echo "$CHANGED" | grep -Ev "$allowed_prefixes" || true)
 
           if [ -n "$violations" ]; then
             echo "❌ Commit enthält Dateien außerhalb deines Verzeichnisses!"
-            echo "👤 Erlaubt ist nur: ${actor_lower}/"
+            echo "👤 Erlaubt ist nur: ${actor}/ (plus ggf. common/, shared/, README.md)"
             echo "🚫 Nicht erlaubte Dateien:"
             echo "$violations"
             echo
-            echo "💡 Hinweis: Benenne dein persönliches Verzeichnis exakt wie dein GitHub-Login (${actor_lower})"
+            echo "💡 Hinweis: Benenne dein persönliches Verzeichnis exakt wie dein GitHub-Login (${actor})"
             exit 1
           fi
 
-          echo "✅ Alle Änderungen befinden sich im erlaubten Bereich (${actor_lower}/)."
+          echo "✅ Alle Änderungen befinden sich im erlaubten Bereich (${actor}/ oder gemeinsame Bereiche)."
