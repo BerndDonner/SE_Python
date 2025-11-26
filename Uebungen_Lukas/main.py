@@ -1,85 +1,66 @@
 import random
 
-# 🧩 Aufgabe 1 – Kartenpool erweitern
-# 20 verschiedene Karten-Emojis
-# Tuple wird hier verwendet, weil es unveränderlich ist (immutable)
-# Vorteil: Schutz vor unbeabsichtigtem Ändern des Kartenpools
-Karten_alle = (
-    "🍎", "⚽", "🚗", "🌻", "🐠", "🎲", "🍩", "🐱", "🌈", "🚀",
-    "🍕", "🎧", "🐸", "🌵", "🦋", "🎁", "🍪", "🐢", "🍇", "🧩"
-)
+def spielfeld():
+    karten = []
+    for idx, tupel in enumerate(kombis):
+        if aufgedeckt[idx]:
+            # Aufgedeckt: Vorderseite anzeigen
+            karten.append(tupel[1])
+        else:
+            # Verborgen: Rückseite anzeigen
+            karten.append(tupel[0])
+    print("Karten: ", *karten)
+    print("Index:  ", end=" ")
+    for i in range(len(karten)):
+        print(f"{i:2}", end=" ")
+    print("\n")
 
-Karte_verdeckt = "🎴"
-# 🧩 Aufgabe 2 – Schwierigkeitsstufe
+karte_vorne = ("🐍", "🐢", "🐸")
+karte_hinten = ("🟦", "🟥")
+
+# Spiel initialisieren
+def init_spiel():
+    global kombis, aufgedeckt
+    kombis = []
+    for hinten in karte_hinten:
+        for vorne in karte_vorne:
+            kombis.append((hinten, vorne))
+    aufgedeckt = [False] * len(kombis)
+    random.shuffle(kombis)
+
+init_spiel()
+
+# Game-Loop
 while True:
+    spielfeld()
+
     try:
-        paare = int(input(f"Wie viele Kartenpaare möchtest du spielen? (1–{len(Karten_alle)}): "))
-        if 1 <= paare <= len(Karten_alle):
-            break
-        else:
-            print("Bitte eine Zahl im gültigen Bereich eingeben!")
+        i, j = input("Welche zwei Karten möchten Sie aufdecken (z. B. 0 1)? ").split()
+
+        i = int(i)
+        j = int(j)
     except ValueError:
-        print("Ungültige Eingabe. Bitte eine Zahl eingeben!")
+        print("Ungültige Eingabe. Bitte zwei Zahlen eingeben.")
+        continue
 
-# Teilmenge auswählen (z. B. 5 Paare)
-auswahl_karten = list(Karten_alle[:paare])  # slicing: wähle Teilmenge
-Karten_deck = auswahl_karten * 2  # doppelt (für Paare)
+    if i < 0 or i >= len(kombis) or j < 0 or j >= len(kombis) or i == j:
+        print("Ungültige Indizes.")
+        continue
+    
+    # TODO: überprüfen das Karten nich offen sind
 
-# Unterschied zwischen direkter und kopierter Liste
-alle = list(Karten_alle)
-b = alle  # verweist auf dasselbe Objekt
-random.shuffle(b)
-print("\n🔀 Nach shuffle(b) mit direkter Referenz:")
-print("b =", b)
-print("alle =", alle)
+    aufgedeckt[i] = True
+    aufgedeckt[j] = True
 
-alle = list(Karten_alle)
-b = alle[:]  # Kopie der Liste
-random.shuffle(b)
-print("\n🔀 Nach shuffle(b) mit Kopie (alle[:]):")
-print("b =", b)
-print("alle =", alle)
+    spielfeld()
 
-# Karten mischen
-random.shuffle(Karten_deck)
+    # Überprüfen ob es ein Paar ist
+    if kombis[i][1] == kombis[j][1]:  # Vorderseiten vergleichen
+        print("Paar-Gefunden")
+        # Karten bleiben aufgedeckt
+    else:
+        print("Kein Paar")
+        # Karten zurückdrehen
+        aufgedeckt[i] = False
+        aufgedeckt[j] = False
 
-# Zeige Karten einmal an (zum Einprägen)
-print("\n🃏 Diese Karten sind im Spiel:")
-print(" ".join(Karten_deck))
-input("Drücke Enter, um das Spiel zu starten...")
-
-# Spielfeld vorbereiten
-Zahlen = [f"{i+1:2}" for i in range(len(Karten_deck))]
-Karten_sichtbar = [Karte_verdeckt] * len(Karten_deck)
-
-# Spiel-Loop
-while Karte_verdeckt in Karten_sichtbar:
-    print("\nAktuelles Spielfeld:")
-    print(" ".join(Karten_sichtbar))
-    print(" ".join(Zahlen))
-
-    auswahl = input("Welche zwei Karten möchtest du aufdecken? (z. B. '3 7') → ")
-    try:
-        karte1, karte2 = auswahl.split()
-        i1, i2 = int(karte1) - 1, int(karte2) - 1
-
-        if i1 == i2 or not (0 <= i1 < len(Karten_deck)) or not (0 <= i2 < len(Karten_deck)):
-            print("❗ Ungültige Auswahl, bitte andere Zahlen wählen.")
-            continue
-
-        # Karten aufdecken
-        Karten_sichtbar[i1] = Karten_deck[i1]
-        Karten_sichtbar[i2] = Karten_deck[i2]
-        print(" ".join(Karten_sichtbar))
-
-        if Karten_deck[i1] == Karten_deck[i2]:
-            print("✔️ Super, ein Paar gefunden!")
-        else:
-            print("❌ Leider kein Paar.")
-            Karten_sichtbar[i1] = Karte_verdeckt
-            Karten_sichtbar[i2] = Karte_verdeckt
-
-    except ValueError:
-        print("❗ Bitte zwei Zahlen mit Leerzeichen eingeben.")
-
-print("🎉 Glückwunsch! Du hast alle Paare gefunden!")
