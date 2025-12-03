@@ -9,7 +9,7 @@ def spielfeld():
     print("\n")
 
 karte_vorne = ("🐍", "🐢", "🐸")
-karte_hinten = ("🟦", "🟥")
+karte_hinten = ("🎴", "🃏")
 
 kombis = []
 for hinten in karte_hinten:
@@ -22,7 +22,9 @@ verdeckt = [True] * len(kombis)
 while any(verdeckt):
     spielfeld()
 
-    i, j = input("Welche zwei Karten möchten Sie aufdecken (z. B.: 1 2)? ").split()
+    #i, j = input("Welche zwei Karten möchten Sie aufdecken (z. B.: 1 2)? ").split()       #Karten gemeinsam abfragen
+    i = input("Welche erste Karte möchten Sie aufdecken (z. B.: 1)? ")                     #Karten einzeln abfragen
+    j = input("Welche zweite Karte möchten Sie aufdecken (z. B.: 2)? ")
 
     i = int(i) -1
     j = int(j) -1
