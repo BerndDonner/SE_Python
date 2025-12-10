@@ -19,15 +19,14 @@ def main():
             print("Ungültige Indizes.")
             karten_lesen_und_vergleichen()
 
-        spielfeld()
-
         if kombis[i]["vorne"] == kombis[j]["vorne"]:
             print("Treffer!")
         else:
             print("Leider kein Treffer.") 
+            spielfeld()
             kombis[i]["sichtbar"] = "hinten"
             kombis[j]["sichtbar"] = "hinten"  
-            
+
 
 
     karte_vorne = ("🐍", "🐢", "🐸")
@@ -48,6 +47,7 @@ def main():
     while any(k["sichtbar"] != "vorne" for k in kombis):
         spielfeld()
         karten_lesen_und_vergleichen()
+    spielfeld()
     print("Glückwunsch, alle Paare gefunden!")
     if "1" == input("Drücke 1 um neu zu starten."):
         main()
