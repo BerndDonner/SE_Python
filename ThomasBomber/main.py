@@ -1,7 +1,7 @@
 import random
 
 def spielfeld():
-    karten = [tupel[0] for tupel in kombis]
+    karten = [k[k["sichtbar"]]for k in kombis]
     print("Karten: ", *karten)
     print("Index:  ", end=" ")
     for i in range(len(karten)):
@@ -10,15 +10,18 @@ def spielfeld():
 
 karte_vorne = ("🐍", "🐢", "🐸")
 karte_hinten = ("🟦", "🟥")
-
 kombis = []
 for hinten in karte_hinten:
     for vorne in karte_vorne:
-        kombis.append((hinten, vorne))
+        karte = {}
+        karte["vorne"] = vorne
+        karte["hinten"] = hinten
+        karte["sichtbar"] = "hinten"
+        kombis.append(karte)
 
 random.shuffle(kombis)
 
-while any(sichtbar in karte_hinten for sichtbar, _ in kombis): 
+while any(k["sichtbar"] == "hinten" for k in kombis):
     spielfeld()
     try:
         i, j = map(int, input("Welche zwei Karten möchten Sie aufdecken (z. B. 0 1)? ").split())
@@ -30,27 +33,21 @@ while any(sichtbar in karte_hinten for sichtbar, _ in kombis):
     #     print("Ungültige Indizes.")
     #     continue
 
-    if kombis[i][0] in karte_vorne or kombis[j][0] in karte_vorne:
+    if kombis[i]["sichtbar"] == "vorne" or kombis[j]["sichtbar"] == "vorne":
         print("Diese Karte ist schon aufgedeckt.")
         continue
 
-    a, b = kombis[i]
-    kombis[i] = (b, a)
-
-    a, b = kombis[j]
-    kombis[j] = (b, a)
+    kombis[i]["sichtbar"] = "vorne"
+    kombis[j]["sichtbar"] = "vorne"
 
     spielfeld()
 
-    if kombis[i][0] == kombis[j][0]:
+    if kombis[i]["vorne"] == kombis[j]["vorne"]:
         print("Paar gefunden!")
 
     else:
         print("Kein Paar.")
-        a, b = kombis[i]
-        kombis[i] = (b, a)
-
-        a, b = kombis[j]
-        kombis[j] = (b, a)
+        kombis[i]["sichtbar"] = "hinten"
+        kombis[j]["sichtbar"] = "hinten"
 
 print("Glückwunsch! Du hast alle Paare gefunden.")
