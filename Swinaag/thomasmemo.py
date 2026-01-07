@@ -1,35 +1,5 @@
 import random
 
-class Karte:
-    def __init__(self, symbol, farbe, aufgedeckt):
-        self.symbol = symbol
-        self.farbe = farbe
-        self.aufgedeckt = aufgedeckt
-        aufgedeckt = False
-
-    def aufdecken(self):
-        self.aufgedeckt = True
-
-    def verdecken(self):
-        self.aufgedeckt = False
-
-    def sichtbar(self): 
-        if self.aufgedeckt:
-            print (f'{self.symbol}')
-            return self.symbol
-        else:
-            print (f'{self.farbe}')
-            return self.farbe
-        
-    def vergleichen(self, other: 'Karte'):
-                        # # if self.symbol == other.symbol:
-                        #     return True
-                        # else:   
-                        #     return False
-        return self.symbol == other.symbol
-                    
-
-
 def spielfeld():
     karten = [tupel[0] for tupel in kombis]
     print("Karten: ", *karten)
@@ -72,7 +42,7 @@ while any(sichtbar in karte_hinten for sichtbar, _ in kombis):
 
     spielfeld()
 
-    if kombis[i][0].vergleichen(kombis[j][0]):
+    if kombis[i][0] == kombis[j][0]:
         print("Paar gefunden!")
 
     else:
