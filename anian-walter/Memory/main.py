@@ -1,4 +1,28 @@
 import random
+
+class Karte:
+    self.symbol
+    self.farbe
+    self.aufgedeckt
+
+
+    def __init__(self, symbol: str, farbe: str):
+        self.symbol = symbol
+        self.farbe = farbe
+        self.aufgedeckt = False
+
+    def aufdecken(self) -> None:
+        self.aufgedeckt = True
+
+    def vergleichen(self, andere: Karte) -> bool:
+        return self.symbol == andere.symbol and self.farbe == andere.farbe
+
+    def anzeige(self) -> str:
+        return self.symbol if self.aufgedeckt else "❓"
+
+k1 = Karte("🐍", "🟦")
+
+
 def main():
     def spielfeld():
         karten = [k[k["sichtbar"]] for k in kombis]
