@@ -1,24 +1,27 @@
 import random
+import time
+import os
 
 class Karte:
-    def __init__(self, symbol, farbe, aufgedeckt):
+    def __init__(self, symbol, farbe):
         self.symbol = symbol
         self.farbe = farbe
-        self.aufgedeckt = aufgedeckt
-        aufgedeckt = False
+        self._aufgedeckt = False 
+   
 
     def aufdecken(self):
-        self.aufgedeckt = True
+        self._aufgedeckt = True
+
+    def aufgedeckt(self)->bool:
+        return self._aufgedeckt    
 
     def verdecken(self):
-        self.aufgedeckt = False
+        self._aufgedeckt = False
 
     def sichtbar(self): 
-        if self.aufgedeckt:
-            print (f'{self.symbol}')
+        if self._aufgedeckt:
             return self.symbol
         else:
-            print (f'{self.farbe}')
             return self.farbe
         
     def vergleichen(self, other: 'Karte'):
@@ -28,59 +31,63 @@ class Karte:
                         #     return False
         return self.symbol == other.symbol
                     
-
-
 def spielfeld():
-    karten = [tupel[0] for tupel in kombis]
+    #bildschirmlöschen:
+    os.system('cls')
+    print("______________________________________ MEMORY____________________________________________")
+    karten = [k.sichtbar() for k in kartenstapel]
     print("Karten: ", *karten)
     print("Index:  ", end=" ")
     for i in range(len(karten)):
         print(f"{i:2}", end=" ")
     print("\n")
 
+
 karte_vorne = ("🐍", "🐢", "🐸")
 karte_hinten = ("🟦", "🟥")
-
-kombis = []
+ 
+kartenstapel = list()
 for hinten in karte_hinten:
     for vorne in karte_vorne:
-        kombis.append((hinten, vorne))
+          kartenstapel.append(Karte(vorne,hinten ))
 
-random.shuffle(kombis)
+random.shuffle(kartenstapel)
 
-while any(sichtbar in karte_hinten for sichtbar, _ in kombis): 
+while any(k.aufgedeckt() == False for k in kartenstapel): 
     spielfeld()
     try:
         i, j = map(int, input("Welche zwei Karten möchten Sie aufdecken (z. B. 0 1)? ").split())
     except ValueError:
         print("Bitte zwei Zahlen eingeben.")
+        time.sleep(1.5)
         continue
 
-    # if i < 0 or i >= len(kombis) or j < 0 or j >= len(kombis) or i == j:
-    #     print("Ungültige Indizes.")
-    #     continue
+    if i < 0 or i >= len(kartenstapel) or j < 0 or j >= len(kartenstapel) or i == j:
+        print("Ungültige Indizes.")
+        time.sleep(1.5)
+        continue
 
-    if kombis[i][0] in karte_vorne or kombis[j][0] in karte_vorne:
+    if kartenstapel[i].aufgedeckt() in karte_vorne or kartenstapel[j].aufgedeckt() in karte_vorne:
         print("Diese Karte ist schon aufgedeckt.")
+        time.sleep(1.5)
         continue
 
-    a, b = kombis[i]
-    kombis[i] = (b, a)
-
-    a, b = kombis[j]
-    kombis[j] = (b, a)
+    kartenstapel[i].aufdecken()
+    kartenstapel[j].aufdecken()
 
     spielfeld()
 
-    if kombis[i][0].vergleichen(kombis[j][0]):
+    if kartenstapel[i].vergleichen(kartenstapel[j]):
         print("Paar gefunden!")
+        time.sleep(1.5)
 
     else:
         print("Kein Paar.")
-        a, b = kombis[i]
-        kombis[i] = (b, a)
-
-        a, b = kombis[j]
-        kombis[j] = (b, a)
-
+        kartenstapel[i].verdecken()
+        kartenstapel[j].verdecken()
+        time.sleep(1.5)
+       
 print("Glückwunsch! Du hast alle Paare gefunden.")
+time.sleep(3)
+if input("Neues Spiel y/n?") == ("y","Y"):
+    os.execv(os.curdir) 
