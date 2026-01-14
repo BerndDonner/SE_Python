@@ -8,6 +8,27 @@ def spielfeld():
         print(f"{i:2}", end=" ")
     print("\n")
 
+
+
+class Karte:
+    def __init__(self, symbol, farbe, aufgdeckt):
+        self.symbol = symbol
+        self.farbe = farbe
+        self.aufgedeckt = False
+
+    def aufdecken(self, aufgedeckt):
+        self.aufgedeckt = True
+    
+    def zuklappen(self):
+        self.aufgedeckt = False
+
+    def vergleichen(self, andere_karte):
+        return self.symbol == andere_karte.symbol
+    def zeigen(self)-> str:
+        return self.symbol if self.aufgedeckt else self.farbe
+
+
+
 karte_vorne = ("🐍", "🐢", "🐸")
 karte_hinten = ("🟦", "🟥")
 kombis = []
