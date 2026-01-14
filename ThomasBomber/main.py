@@ -22,8 +22,9 @@ class Karte:
     def zuklappen(self):
         self.aufgedeckt = False
 
-    def vergleichen(self, andere_karte):
-        return self.symbol == andere_karte.symbol
+    def vergleichen(self, andere:Karte):
+        return self.symbol == andere.symbol
+    
     def zeigen(self)-> str:
         return self.symbol if self.aufgedeckt else self.farbe
 
