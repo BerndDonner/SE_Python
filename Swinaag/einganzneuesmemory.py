@@ -104,7 +104,7 @@ eingabe = False
 x = 2
 while eingabe == False:
    
-    neues_spiel = input("Neues Spiel y/n? ").strip().lower()  # Eingabe bereinigen und in Kleinbuchstaben umwandeln
+    neues_spiel = input("Neues Spiel y/n? ")  # Eingabe bereinigen und in Kleinbuchstaben umwandeln
     if neues_spiel == "y" or neues_spiel == "Y":
         restart_program()
         eingabe = True
