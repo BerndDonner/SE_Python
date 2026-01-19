@@ -1,4 +1,6 @@
 import random
+import time
+import os
 
 class Karte:
 
@@ -55,7 +57,7 @@ def main():
 
 
     karte_vorne = ("🐍", "🐢", "🐸")
-    karte_hinten  = ("🟦", "🟥")
+    karte_hinten  = ("🟦", "🟥") 
 
     kombis = list()
     for hinten in karte_hinten:
