@@ -1,6 +1,7 @@
 import random
 import time
 import os
+import sys
 
 class Karte:
     def __init__(self, symbol, farbe):
@@ -30,6 +31,16 @@ class Karte:
                         # else:   
                         #     return False
         return self.symbol == other.symbol
+
+def restart_program():
+    """Startet das aktuelle Programm neu und ersetzt den aktuellen Prozess."""
+    print("Programm wird neu gestartet...")
+    time.sleep(0.5)
+   # sys.executable ist der Pfad zum Python-Interpreter (z.B. python.exe)
+    # sys.argv[0] ist der Name des aktuellen Skripts
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
                     
 def spielfeld():
     #bildschirmlöschen:
@@ -43,7 +54,7 @@ def spielfeld():
     print("\n")
 
 
-karte_vorne = ("🐍", "🐢", "🐸")
+karte_vorne = ("🐍", "🐢", "🐸", "🐶")#, "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁")
 karte_hinten = ("🟦", "🟥")
  
 kartenstapel = list()
@@ -89,5 +100,22 @@ while any(k.aufgedeckt() == False for k in kartenstapel):
        
 print("Glückwunsch! Du hast alle Paare gefunden.")
 time.sleep(3)
-if input("Neues Spiel y/n?") == ("y","Y"):
-    os.execv(os.curdir) 
+eingabe = False
+x = 2
+while eingabe == False:
+   
+    neues_spiel = input("Neues Spiel y/n? ").strip().lower()  # Eingabe bereinigen und in Kleinbuchstaben umwandeln
+    if neues_spiel == "y" or neues_spiel == "Y":
+        restart_program()
+        eingabe = True
+    elif neues_spiel == "n" or neues_spiel ==  "N":
+        print("Danke fürs Spielen!")
+        time.sleep(2)
+        eingabe = True
+        sys.exit()
+    else:
+        print(f"Ungültige Eingabe. Das Programm wird für {x} Sekunden stillstehen.")
+        time.sleep(x)
+        x = x*x
+        eingabe = False
+ 
