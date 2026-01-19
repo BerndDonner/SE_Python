@@ -18,7 +18,7 @@ class Karte:
     def zudecken(self) -> None:
         self._aufgedeckt = False
 
-    def vergleichen(self, andere: Karte) -> bool:
+    def vergleichen(self, andere: "Karte") -> bool:
         return self.symbol == andere.symbol
 
     def sichtbar(self) -> str:
@@ -28,7 +28,7 @@ class Karte:
 
 
 def spielfeld():
-    os.system('cls')
+    os.system("cls")
 
     karten = [k.sichtbar() for k in kombis]
     print("Karten: ", *karten)
