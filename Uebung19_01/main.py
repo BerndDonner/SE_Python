@@ -29,7 +29,7 @@ class Karte:
 class Memory:
 
     def __init__(self, karte_vorne: tuple[str, ...], karte_hinten: tuple[str, str]):
-        self.kombis = list()
+        self.kombis: list[Karte] = []
         for hinten in karte_hinten:
             for vorne in karte_vorne:
                 self.kombis.append(Karte(vorne, hinten))
