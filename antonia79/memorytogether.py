@@ -1,56 +1,102 @@
 import random
+import time
+import os
+
+class XXX:
+
+    def __int__(self, anzahl_paare: int, anzahl_spalten: int):
+        #Input Validierung
+        assert isinstance(anzahl_paare, int) and anzahl_paare > 0, "Anzahl Paare muss eine positiver int sein"
+        assert isinstance(anzahl_spalten, int) and anzahl_spalten > 0, "Anzahl Spalten muss positver int sein"
+
+        anzahl_zeilen: int = anzahl_paare * 2 + anzahl_spalten - 1 // anzahl_spalten
 
 
-def spielfeld():
-    karten = [tupel[0] for tupel in kombis]
-    print("Karten: ", *karten)
-    print("Index:  ", end=" ")
-    for i in range(len(karten)):
-        print(f"{i:2}", end=" ")
-    print("\n")
+class Karte:
 
-karte_vorne = ("🐍", "🐢", "🐸")
-karte_hinten = ("🟦", "🟥")
-nochmal = True
+    def __init__(self, symbol: str, farbe: str):
+        self.symbol = symbol      # Vorderseite
+        self.farbe  = farbe       # Rückseite
+        self._aufgedeckt = False
 
-kombis = []
-for hinten in karte_hinten:
-    for vorne in karte_vorne:
-        kombis.append((hinten, vorne))
+    def aufdecken(self) -> None:
+        self._aufgedeckt = True
 
-random.shuffle(kombis)
+    def aufgedeckt(self) -> bool:
+        return self._aufgedeckt
 
-verdeckt = [tupel[0] for tupel in kombis]
-while any(tupel[0] in karte_hinten for tupel in kombis):
-    spielfeld()
+    def zudecken(self) -> None:
+        self._aufgedeckt = False
 
-    i, j = input("Welche zwei Karten möchten Sie aufdecken (z. B. 0 1)? ").split()
+    def vergleichen(self, andere: "Karte") -> bool:
+        return self.symbol == andere.symbol
 
-    i = int(i)
-    j = int(j)
+    def sichtbar(self) -> str:
+        if self._aufgedeckt: return self.symbol
+        return self.farbe
 
-    if i < 0 or i >= len(kombis) or j < 0 or j >= len(kombis) or i == j:
-        print("Ungültige Indizes.")
 
-    a, b = kombis[i]
-    kombis[i] = (b, a)
+class Memory:
 
-    a, b = kombis[j]
-    kombis[j] = (b, a)
+    def __init__(self, karte_vorne: tuple[str, ...], karte_hinten: tuple[str, str]):
+        self.stapel: list[Karte] = []
+        for hinten in karte_hinten:
+            for vorne in karte_vorne:
+                self.stapel.append(Karte(vorne, hinten))
 
-    spielfeld()
+        random.shuffle(self.stapel)
 
-    if kombis[i][0] == kombis[j][0]:
-        print("Ein Paar!")
-    else: 
-        print("Neuer Versuch ")
-        b, a = kombis[i]
-        kombis[i] = (a, b)
 
-        b, a = kombis[j]
-        kombis[j] = (a, b)
+    def spielfeld(self):
+        os.system('cls')
 
-    
+        karten = [k.sichtbar() for k in self.stapel]
+        print("Karten: ", *karten)
+        print("Index:  ", end=" ")
+        for i in range(len(karten)):
+            print(f"{i:2}", end=" ")
+        print("\n")
 
-print("Du hast alle Paare gefunden!")
-nochmal = input("Magst du nochmal spielen? (True oder False)").split()
+    def spielen(self):
+        while any(k.aufgedeckt() == False for k in self.stapel):
+            self.spielfeld()
+            try:
+                i, j = map(int, input("Welche zwei Karten möchten Sie aufdecken (z. B. 0 1)? ").split())
+            except ValueError as e:
+                print("Bitte zwei Zahlen eingeben.", e)
+                time.sleep(1.5)
+                continue
+
+            if i < 0 or i >= len(self.stapel) or j < 0 or j >= len(self.stapel) or i == j:
+                print("Ungültige Indizes.")
+                time.sleep(1.5)
+                continue
+
+            if self.stapel[i].aufgedeckt() == True or self.stapel[j].aufgedeckt() == True:
+                print("Diese Karte ist schon aufgedeckt.")
+                time.sleep(1.5)
+                continue
+
+            self.stapel[i].aufdecken()
+            self.stapel[j].aufdecken()
+
+            self.spielfeld()
+
+
+            if self.stapel[i].vergleichen(self.stapel[j]):
+                print("Paar gefunden!")
+
+            else:
+                print("Kein Paar.")
+                self.stapel[i].zudecken()
+                self.stapel[j].zudecken()
+            time.sleep(1.5)
+
+        print("Glückwunsch! Du hast alle Paare gefunden.")
+
+
+
+
+m1 = Memory(("🐍", "🐢", "🐸"), ("🟦", "🟥"))
+m1.spielen()
+
