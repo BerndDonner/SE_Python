@@ -2,6 +2,24 @@ import random
 import os
 import time
 
+class Grid:
+    def __init__(self, anzahl_paare: int, anzahl_spalten: int)-> None:
+        assert isinstance(anzahl_paare, int) and anzahl_paare > 0, "anzahl_karten muss eine positive ganze Zahl sein."
+        assert isinstance(anzahl_spalten, int) and anzahl_spalten > 0, "anzahl_spalten muss eine positive ganze Zahl sein."
+
+        anzahl_zeilen = (anzahl_paare*2 + anzahl_spalten - 1) // anzahl_spalten
+        idx: int = 0
+        for y in range(anzahl_zeilen):
+            for x in range(anzahl_spalten):
+                print(f"{idx:3}: {chr(ord('A') + x)}, {y}", end=" ")
+                idx += 1
+            print()
+                
+
+        self.anzahl_karten = anzahl_paare
+        self.anzahl_spalten = anzahl_spalten
+        
+
 class Karte:
 
     def __init__(self, symbol: str, farbe: str):
