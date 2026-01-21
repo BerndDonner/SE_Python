@@ -2,6 +2,22 @@ import random
 import time
 import os
 
+
+
+class XY:
+    def __init__(self, anzahl_paare: int, anzahl_spalten: int):
+        # Input Validierung
+        assert anzahl_paare > 0, "Die Anzahl der Paare muss größer als 0 sein."
+        assert isinstance(anzahl_paare, int), "Die Anzahl der Paare muss eine ganze Zahl sein."
+        assert anzahl_spalten > 0, "Die Anzahl der Spalten muss größer als 0 sein."
+        assert isinstance(anzahl_spalten, int), "Die Anzahl der Spalten muss eine ganze Zahl sein."
+        anzahl_zeilen = (anzahl_paare*2)+(anzahl_spalten-1) // anzahl_spalten
+        for y in range(anzahl_zeilen):
+            for x in range(anzahl_spalten):
+                print(chr(ord('A') + x), y)
+
+
+
 class Karte:
     def __init__(self, symbol: str, farbe:str):
         self.symbol = symbol
@@ -99,11 +115,10 @@ class MemorySpiel:
 
                     
 
-
+test = XY(8, 3)
 
 m1= MemorySpiel(("🐍", "🐢", "🐸", "🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯", "🦁"),("🟦", "🟥"))
 m1.spielen()
-
 
 
 
