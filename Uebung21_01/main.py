@@ -2,9 +2,31 @@ import random
 import time
 import os
 
+
+class XXX:
+
+    def __init__(self, anzahl_paare: int, anzahl_spalten: int) -> None:
+        # contract
+        assert isinstance(anzahl_paare, int) and anzahl_paare > 0, "Anzahl Paare muss positver int sein"
+        assert isinstance(anzahl_spalten, int) and anzahl_spalten > 0, "Anzahl Spalten muss positver int sein"
+
+        anzahl_zeilen: int = (anzahl_paare*2 + anzahl_spalten - 1)  // anzahl_spalten
+
+        idx: int = 0
+        for y in range(anzahl_zeilen):
+            for x in range(anzahl_spalten):
+                print(f"{idx:3}: {chr(ord('A') + x)},  {y}")
+                idx += 1
+            
+
+
+
+
+
+
 class Karte:
 
-    def __init__(self, symbol: str, farbe: str):
+    def __init__(self, symbol: str, farbe: str) -> None:
         self.symbol = symbol      # Vorderseite
         self.farbe  = farbe       # Rückseite
         self._aufgedeckt = False
@@ -28,7 +50,7 @@ class Karte:
 
 class Memory:
 
-    def __init__(self, karte_vorne: tuple[str, ...], karte_hinten: tuple[str, str]):
+    def __init__(self, karte_vorne: tuple[str, ...], karte_hinten: tuple[str, str]) -> None:
         self.stapel: list[Karte] = []
         for hinten in karte_hinten:
             for vorne in karte_vorne:
@@ -86,7 +108,7 @@ class Memory:
 
 
 
-
-m1 = Memory(("🐍", "🐢", "🐸"), ("🟦", "🟥"))
-m1.spielen()
+test = XXX(8, 3)
+#m1 = Memory(("🐍", "🐢", "🐸"), ("🟦", "🟥"))
+#m1.spielen()
 
