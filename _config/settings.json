@@ -5,18 +5,15 @@
     "editor.formatOnSave": true,
     "files.autoSave": "onFocusChange",
     "git.openRepositoryInParentFolders": "always",
-
     // --- Python / Type Hints / Pylance ---
-    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.typeCheckingMode": "strict",
     "python.analysis.diagnosticMode": "workspace",
     "python.analysis.autoImportCompletions": true,
     "python.analysis.useLibraryCodeForTypes": true,
     "python.analysis.autoSearchPaths": true,
-
     // Inlay Hints (sehr gut für Unterricht)
     "python.analysis.inlayHints.variableTypes": true,
     "python.analysis.inlayHints.functionReturnTypes": true,
-
     // Komfort
     "python.terminal.activateEnvironment": true
 }
