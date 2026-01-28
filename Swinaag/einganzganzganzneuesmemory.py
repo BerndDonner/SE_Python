@@ -19,8 +19,7 @@ class XY:
 
 
 class Karte:
-    def __init__(self, symbol: str, farbe:str):
-        self.symbol = symbol
+    def  lf.symbol = symbol
         self.farbe = farbe
         self._aufgedeckt = False 
    
@@ -29,6 +28,7 @@ class Karte:
         self._aufgedeckt = True
 
     def aufgedeckt(self)->bool:
+        
         return self._aufgedeckt    
 
     def verdecken(self):
@@ -106,6 +106,8 @@ class MemorySpiel:
                 self.kartenstapel[j].verdecken()
                 self.counter += 1
                 time.sleep(1.5)
+
+    
             
         print("Glückwunsch! Du hast alle Paare in", self.counter, "Versuchen gefunden.")
 

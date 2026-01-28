@@ -1,0 +1,153 @@
+# src/main.py
+
+import random
+
+class BattleshipBoard:
+    def __init__(self):
+        self.ships = {}
+        self.shots = {}
+
+    def place_ship(self, name: str, x: int, y: int, direction: str) -> None:
+        if direction not in ['N', 'E', 'S', 'W']:
+            raise ValueError("Ungültige Richtung")
+        ship_size = len(name)
+        if direction == 'N':
+            positions = [(x - i, y) for i in range(ship_size)]
+        elif direction == 'E':
+            positions = [(x, y + i) for i in range(ship_size)]
+        elif direction == 'S':
+            positions = [(x + i, y) for i in range(ship_size)]
+        elif direction == 'W':
+            positions = [(x, y - i) for i in range(ship_size)]
+
+        if any(pos not in self.board or self.board[pos] != "." for pos in positions):
+            raise ValueError("Ungültige Platzierung")
+
+        self.ships[name] = positions
+        for pos in positions:
+            self.board[pos] = name
+
+    def place_random(self, name: str, length: int, rng: random.Random) -> None:
+        directions = ['N', 'E', 'S', 'W']
+        while True:
+            direction = rng.choice(directions)
+            x, y = rng.randint(0, 5), rng.randint(0, 5)
+            try:
+                self.place_ship(name, x, y, direction)
+                break
+            except ValueError:
+                pass
+
+    def shoot(self, pos: tuple[int, int]) -> str:
+        if pos in self.shots:
+            raise RuntimeError("Doppelt beschossen")
+        result = "MISS"
+        for ship, positions in self.ships.items():
+            if pos in positions:
+                result = "HIT"
+                break
+        self.shots[pos] = result
+        return result
+
+    def sunk_ships(self) -> list[str]:
+        sunk_ships = []
+        for ship, positions in self.ships.items():
+            if all(pos in self.shots and self.shots[pos] == "HIT" for pos in positions):
+                sunk_ships.append(ship)
+        return sunk_ships
+
+    def all_sunk(self) -> bool:
+        return len(self.sunk_ships()) == len(self.ships)
+
+    @property
+    def board(self):
+        return [[self.shots.get((x, y), ".") if (x, y) in self.shots else "." for x in range(6)] for y in range(6)]
+    
+
+    # src/main.py
+
+import os
+import time
+
+def spielen_battleship():
+    board = BattleshipBoard()
+    rng = random.Random()
+
+    # Place ships randomly
+    ships = ["Carrier", "Battleship", "Cruiser", "Submarine", "Patrol Boat"]
+    for ship in ships:
+        board.place_random(ship, len(ship), rng)
+
+    shots_taken = 0
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("Spielbrett:")
+        for row in board.board:
+            print(" ".join(row))
+        
+        try:
+            user_input = input("Geben Sie die Koordinaten ein (z.B. 1 2): ")
+            x, y = map(int, user_input.split())
+            result = board.shoot((x, y))
+            shots_taken += 1
+            print(f"Ergebnis: {result}")
+        except ValueError as e:
+            print(e)
+        
+        if board.all_sunk():
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print("Spielbrett:")
+            for row in board.board:
+                print(" ".join(row))
+            print(f"Sie haben alle Schiffe versenkt in {shots_taken} Schüssen!")
+            break
+        
+        time.sleep(0.8)
+
+if __name__ == "__main__":
+    spielen_battleship()
+
+
+    # src/main.py
+
+def test_battleship_board():
+    board = BattleshipBoard()
+
+    # Test initial state
+    assert all(cell == "." for cell in [cell for row in board.board for cell in row])
+
+    # Test place_ship method
+    try:
+        board.place_ship("Carrier", 0, 0, "N")
+        assert board.ships["Carrier"] == [(0, 0), (1, 0), (2, 0)]
+        assert all(board.board[0][i] == "Carrier" for i in range(3))
+    except ValueError as e:
+        assert False, f"Unexpected error: {e}"
+
+    # Test place_random method
+    try:
+        board.place_random("Battleship", 5, random.Random())
+        assert len([pos for pos, cell in board.ships.items() if cell]) == 1
+    except ValueError as e:
+        assert False, f"Unexpected error: {e}"
+
+    # Test shoot method
+    result = board.shoot((0, 0))
+    assert result == "HIT"
+    assert board.board[0][0] == "X"
+
+    result = board.shoot((1, 0))
+    assert result == "MISS"
+    assert board.board[1][0] == "."
+
+    # Test sunk_ships method
+    for pos in [(2, 0), (3, 0), (4, 0)]:
+        board.shoot(pos)
+    assert len(board.sunk_ships()) == 1
+
+    # Test all_sunk method
+    for pos in [(5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5)]:
+        board.shoot(pos)
+    assert board.all_sunk()
+
+test_battleship_board()
