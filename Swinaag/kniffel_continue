@@ -1,0 +1,109 @@
+# src/main.py
+
+import random
+
+def roll(n: int, rng: random.Random) -> list[int]:
+    return [rng.randint(1, 6) for _ in range(n)]
+
+def reroll(w: list[int], indices: list[int], rng: random.Random) -> None:
+    for i in indices:
+        w[i] = rng.randint(1, 6)
+
+
+        # src/main.py
+
+def dreierpasch(w: list[int]) -> int:
+    counts = [w.count(i) for i in range(1, 7)]
+    if max(counts) >= 3:
+        return sum(w)
+    return 0
+
+def viererpasch(w: list[int]) -> int:
+    counts = [w.count(i) for i in range(1, 7)]
+    if max(counts) >= 4:
+        return sum(w)
+    return 0
+
+def full_house(w: list[int]) -> int:
+    counts = [w.count(i) for i in range(1, 7)]
+    if (3 in counts and 2 in counts):
+        return 25
+    return 0
+
+def kleine_strasse(w: list[int]) -> int:
+    w.sort()
+    if set(w) == {1, 2, 3, 4, 5} or set(w) == {2, 3, 4, 5, 6}:
+        return 30
+    return 0
+
+def grosse_strasse(w: list[int]) -> int:
+    w.sort()
+    if set(w) == {1, 2, 3, 4, 5, 6}:
+        return 40
+    return 0
+
+def kniffel(w: list[int]) -> int:
+    counts = [w.count(i) for i in range(1, 7)]
+    if 5 in counts:
+        return 50
+    return 0
+
+
+# src/main.py
+
+import os
+import time
+
+def spielen_kniffel_eine_runde():
+    rng = random.Random()
+    
+    # Startwurf (5 Würfel)
+    w = roll(5, rng)
+    print(f"Startwurf: {w}")
+    input("Drücken Sie Enter, um zu rerollen...")
+
+    # Der Spieler darf 2x neu würfeln
+    for _ in range(2):
+        indices = list(map(int, input("Geben Sie die Würfelpositionen ein (0-4), die neu gewürfelt werden sollen: ").split()))
+        reroll(w, indices, rng)
+        print(f"Würfe nach Reroll: {w}")
+        input("Drücken Sie Enter, um zu rerollen...")
+
+    # Ausgabe: Beste Kategorie und Punkte
+    categories = [
+        ("Dreierpasch", dreierpasch),
+        ("Viererpasch", viererpasch),
+        ("Full House", full_house),
+        ("Kleine Straßen", kleine_strasse),
+        ("Grosse Straßen", grosse_strasse),
+        ("Kniffel", kniffel)
+    ]
+
+    best_score = 0
+    best_category = None
+    for category, func in categories:
+        score = func(w)
+        if score > best_score:
+            best_score = score
+            best_category = category
+
+    print(f"Beste Kategorie: {best_category}")
+    print(f"Punkte: {best_score}")
+
+if __name__ == "__main__":
+    spielen_kniffel_eine_runde()
+
+
+    # src/main.py
+
+def test_scoring_functions():
+    w = [1, 2, 3, 4, 5]
+    
+    assert dreierpasch(w) == sum(w)
+    assert viererpasch([1, 1, 1, 2, 3]) == sum(w)
+    assert full_house([1, 1, 1, 2, 2]) == 25
+    assert kleine_strasse([1, 2, 3, 4, 5]) == 30
+    assert grosse_strasse([1, 2, 3, 4, 5, 6]) == 40
+    assert kniffel([1, 1, 1, 1, 1]) == 50
+
+test_scoring_functions()
