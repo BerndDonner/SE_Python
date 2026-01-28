@@ -1,17 +1,13 @@
 # -------------------------------------------------------------
 # 🧩 Projektweite Git-Konfiguration
 # -------------------------------------------------------------
-# Diese Datei soll in der lokalen .git/config eingebunden werden:
+# Einbindung (aus Repo-Root):
+#   git config --local include.path "../_config/gitconfig"
 #
-#     git config --local include.path "../_config/gitconfig"
-#
-# Dabei bezeichnet "_config" das Unterverzeichnis,
-# in dem sich projektweite Einstellungen befinden (z. B. launch.json, settings.json).
-# 
-# Zweck:
-#  - Erzwingt einen sauberen Rebase-Workflow (keine Merge-Commits)
-#  - Bevorzugt den main-Branch bei Konflikten
-#  - Aktiviert Wiederverwendung von Konfliktlösungen (rerere)
+# Ziele:
+# - Rebase-Workflow statt Merge-Commits
+# - Konfliktlösungen wiederverwenden (rerere)
+# - Sicheres Updaten/Pushing bei Arbeit auf zwei Rechnern
 # -------------------------------------------------------------
 
 [pull]
@@ -20,15 +16,43 @@
 
 [rebase]
     autoStash = true
-    autoMergeStrategy = ours
+    # autoMergeStrategy = ours
+    # ⚠️ Entfernt: "ours" kann Konflikte still und ggf. falsch lösen.
+    # Lieber Konflikte bewusst lösen + rerere nutzt die Lösung dann beim nächsten Mal.
 
 [merge]
     conflictStyle = diff3
 
 [rerere]
     enabled = true
+    # optional, wenn ihr auch aufgezeichnete Auflösungen automatisch anwenden wollt:
+    # autoupdate = true
 
 [alias]
-    lg       = !git log --oneline --graph --decorate --all
-    upmaster = !git fetch origin && git rebase origin/master && git push --force-with-lease
+    lg = log --oneline --graph --decorate --all
 
+    # Updatet den aktuellen Branch sicher in einem Zwei-Rechner-Setup:
+    # 1) fetch
+    # 2) erst auf Upstream (origin/<branch>) rebasen (holt Remote-Commits rein)
+    # 3) dann auf origin/HEAD (main oder master automatisch)
+    # 4) push mit --force-with-lease
+    #
+    # Sicherheitsgurt:
+    # - bricht ab auf main/master
+    # - bricht ab, wenn kein Upstream gesetzt ist
+    # - bricht ab, wenn Upstream nicht origin/<branch> ist
+    upmaster = "!f(){ set -e; \
+      b=$(git rev-parse --abbrev-ref HEAD); \
+      if [ \"$b\" = master ] || [ \"$b\" = main ]; then \
+        echo \"ERROR: upmaster nicht auf '$b' ausfuehren.\"; exit 1; \
+      fi; \
+      u=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null) || { \
+        echo \"ERROR: Kein Upstream gesetzt. Setze ihn mit: git push -u origin $b\"; exit 1; }; \
+      if [ \"$u\" != \"origin/$b\" ]; then \
+        echo \"ERROR: Upstream ist '$u', erwartet 'origin/$b'.\"; exit 1; \
+      fi; \
+      git fetch origin; \
+      git rebase @{u}; \
+      git rebase origin/HEAD; \
+      git push --force-with-lease origin HEAD:refs/heads/$b; \
+    }; f"

@@ -75,13 +75,33 @@ jobs:
 
             echo "ℹ️ workflow_dispatch: prüfe Diff von $FROM bis $TO"
             CHANGED=$(git -c core.quotepath=off diff --name-only "$FROM" "$TO")
+
           else
+            # Push / Pull Request
             if [ "$EVENT_BEFORE" = "0000000000000000000000000000000000000000" ]; then
               echo "ℹ️ Neuer Branch oder erster Commit – prüfe nur neue Dateien (HEAD)."
               CHANGED=$(git -c core.quotepath=off diff-tree --no-commit-id --name-only -r "$EVENT_SHA")
             else
-              echo "ℹ️ Prüfe Diff von $EVENT_BEFORE bis $EVENT_SHA"
-              CHANGED=$(git -c core.quotepath=off diff --name-only "$EVENT_BEFORE" "$EVENT_SHA")
+              echo "ℹ️ Versuche, EVENT_BEFORE-Commit nachzuladen (wichtig bei Rebase/Force-Push)."
+              git fetch --no-tags origin "$EVENT_BEFORE" || true
+
+              if git cat-file -e "$EVENT_BEFORE^{commit}" 2>/dev/null; then
+                echo "ℹ️ Prüfe Diff von $EVENT_BEFORE bis $EVENT_SHA"
+                CHANGED=$(git -c core.quotepath=off diff --name-only "$EVENT_BEFORE" "$EVENT_SHA")
+              else
+                echo "⚠️ EVENT_BEFORE-Commit $EVENT_BEFORE ist lokal nicht verfügbar (z.B. nach Rebase/Force-Push)."
+                echo "ℹ️ Fallback 1: geänderte Dateien aus Push-Event lesen (falls verfügbar)."
+
+                if command -v jq >/dev/null 2>&1; then
+                  CHANGED=$(jq -r '.commits[]? | .added[]?, .modified[]?, .removed[]?' \
+                    "$GITHUB_EVENT_PATH" 2>/dev/null | sort -u)
+                fi
+
+                if [ -z "$CHANGED" ]; then
+                  echo "ℹ️ Fallback 2: prüfe nur Dateien des neuen Commits $EVENT_SHA."
+                  CHANGED=$(git -c core.quotepath=off diff-tree --no-commit-id --name-only -r "$EVENT_SHA")
+                fi
+              fi
             fi
           fi
 
@@ -123,9 +143,6 @@ jobs:
           echo
 
           # --- Prüfen auf Verstöße ---
-          # grep -E  = regulärer Ausdruck
-          # -v       = alles, was NICHT passt
-          # || true  = Fehlercode von grep ignorieren, wenn nichts gefunden
           violations=$(echo "$CHANGED" | grep -Ev "$allowed_prefixes" || true)
 
           if [ -n "$violations" ]; then
