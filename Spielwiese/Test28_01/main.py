@@ -1,8 +1,55 @@
+# ------------------------------------------------------------
+# 🧩 Emoji-Katalog (für die Prüfung)
+# ------------------------------------------------------------
+# ✅ Vorderseiten (Karten-Symbole) – gut unterscheidbar im CLI:
+# Tiere:     🐍 🐢 🐸 🦊 🐙 🦄 🦖 🐝 🦉 🐧 🦁 🐳
+# Essen:     🍕 🍔 🍟 🍣 🍩 🍪 🍎 🍉 🍓 🍌 🍇 🥨
+# Technik:   💾 💿 📟 📺 🖥️ ⌨️ 🖱️ 🔌 🔋 📡 🛰️ 🧲
+# Dinge:     🎲 🎯 🧩 🧠 🧪 🧯 🔧 🪛 🧱 🧭 🔑 🏆
+#
+# 🎴 Rückseiten (2 Stück pro Spiel) – klare Paare:
+# Blöcke:    ("⬛", "⬜")  ("🟦", "🟥")  ("🟩", "🟨")  ("🟪", "🟧")
+# Formen:    ("◆", "◇")  ("■", "□")  ("▲", "△")  ("●", "○")
+#
+# ------------------------------------------------------------
+# 🗣️ Emoji für Meldungen / Events
+# ------------------------------------------------------------
+# Eingabe / Hinweis:     ⌨️ 📝 👉 ℹ️
+# Erfolg / Paar:         🎯 ✅ ✔️ ✨ 🔥 🧠 🎉
+# Misserfolg / kein Paar:💩 🙈 🤡 💥 🫠
+# Fehler / Warnung:      ⚠️ ❌ 🚫 🚧 ❓
+# Ungültige Koordinaten: 🧭 🗺️ 🚧 ❓
+# Schon aufgedeckt:      👀 🔁 🙃
+# Gleiche Karte gewählt: 🪞 ♻️ 😄
+# Abbruch / Quit:        🛑 🚪 👋
+# Spielende / Sieg:      🏆 🥇 🏁 🎊
+# Undo / History (Bonus):↩️ 🕘 📜
+#
+# ------------------------------------------------------------
+# 💬 Beispiel-Meldungen (fertige Textbausteine)
+# ------------------------------------------------------------
+# "⚠️ Bitte zwei Koordinaten eingeben (z. B. A0 D1)."
+# "🚧 Ungültige Koordinaten."
+# "🪞 Zwei verschiedene Karten, bitte."
+# "👀 Die Karte ist schon aufgedeckt."
+# "🎯 Paar gefunden!"
+# "💩 Kein Paar."
+# "🏆 Glückwunsch! Alle Paare gefunden!"
+# "🛑 Spiel beendet."
+# ------------------------------------------------------------
+
+
 import random
 import string
 import time
 import math
 import os
+
+
+
+class SpielAbbruch(Exception):
+    pass
+
 
 
 class GridView:
@@ -78,7 +125,8 @@ class Karte:
         return self.symbol == andere.symbol
 
     def sichtbar(self) -> str:
-        if self._aufgedeckt: return self.symbol
+        if self._aufgedeckt:
+            return self.symbol
         return self.farbe
 
 
@@ -105,51 +153,69 @@ class Memory:
         karten: list[str] = [k.sichtbar() for k in self.stapel]
         print(self.grid_view.render_karten(karten))
 
-    def spielen(self) -> None:
-        while any(k.aufgedeckt() == False for k in self.stapel):
+
+    def frage_zug(self) -> tuple[int, int]:
+        while True:
             self.spielfeld()
+
             try:
-                x, y = input("Welche zwei Karten möchten Sie aufdecken (z. B. A0 D1)? ").split()
-            except ValueError as e:
-                print("Bitte zwei Zahlen eingeben.", e)
+                raw = input("Zwei Karten (z. B. A0 D1) oder Ctrl-C zum Beenden: ").strip()
+            except KeyboardInterrupt:
+                print()
+                raise SpielAbbruch()
+
+            try:
+                x, y = raw.split()
+            except ValueError:
+                print("⚠️ Bitte zwei Koordinaten eingeben (z. B. A0 D1).")
                 time.sleep(1.5)
                 continue
 
-            
             i: int | None = self.grid_view.get_index(x.upper())
-            if i is None:
-                print("Ungültige Koordinaten.")
+            j: int | None = self.grid_view.get_index(y.upper())
+
+            if i is None or j is None:
+                print("🚧 Ungültige Koordinaten.")
                 time.sleep(1.5)
                 continue
-            
-            j: int | None = self.grid_view.get_index(y.upper())
-            if j is None:
-                print("Ungültige Koordinaten.")
+
+            if i == j:
+                print("🪞 Zwei verschiedene Karten, bitte.")
                 time.sleep(1.5)
                 continue
 
             if self.stapel[i].aufgedeckt() == True or self.stapel[j].aufgedeckt() == True:
-                print("Diese Karte ist schon aufgedeckt.")
+                print("👀 Die Karte ist schon aufgedeckt.")
                 time.sleep(1.5)
                 continue
 
-            self.stapel[i].aufdecken()
-            self.stapel[j].aufdecken()
-
-            self.spielfeld()
+            return i, j
 
 
-            if self.stapel[i].vergleichen(self.stapel[j]):
-                print("Paar gefunden!")
 
-            else:
-                print("Kein Paar.")
-                self.stapel[i].zudecken()
-                self.stapel[j].zudecken()
-            time.sleep(1.5)
+    def spielen(self) -> None:
+        try:
+            while any(k.aufgedeckt() == False for k in self.stapel):
+                i, j = self.frage_zug()
 
-        print("Glückwunsch! Du hast alle Paare gefunden.")
+                self.stapel[i].aufdecken()
+                self.stapel[j].aufdecken()
+                self.spielfeld()
 
-m1 = Memory(("🐍", "🐢", "🐸"), ("🟦", "🟥"))
-m1.spielen()
+                if self.stapel[i].vergleichen(self.stapel[j]):
+                    print("🎯 Paar gefunden!")
+                else:
+                    print("💩 Kein Paar.")
+                    self.stapel[i].zudecken()
+                    self.stapel[j].zudecken()
 
+                time.sleep(1.5)
+
+            print("🏆 Glückwunsch! Alle Paare gefunden!")
+        except SpielAbbruch:
+            print("🛑 Spiel beendet.")
+
+
+
+mem1 = Memory(("🐍", "🐢", "🐸"), ("🟦", "🟥"))
+mem1.spielen()
