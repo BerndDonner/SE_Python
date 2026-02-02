@@ -78,6 +78,7 @@ def spielen_ttt():
             print(f"Der Gewinner ist {winner}!")
             break
         
+        
         if game.ist_voll():
             os.system('cls' if os.name == 'nt' else 'clear')
             print(game.render())
@@ -85,6 +86,7 @@ def spielen_ttt():
             break
         
         current_symbol = "O" if current_symbol == "X" else "X"
+
 
 if __name__ == "__main__":
     spielen_ttt()
