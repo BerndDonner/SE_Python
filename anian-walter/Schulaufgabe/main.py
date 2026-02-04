@@ -127,6 +127,24 @@ MSG: dict[str, list[str]] = {
     ],
 }
 
+WERTE: dict[str, int] = {
+    # Tiere
+    "🐍": 1, "🐢": 2, "🐸": 3, "🦊": 2, "🐙": 4, "🦄": 5,
+    "🦖": 4, "🐝": 1, "🦉": 3, "🐧": 2, "🦁": 4, "🐳": 5,
+
+    # Essen
+    "🍕": 2, "🍔": 2, "🍟": 1, "🍣": 4, "🍩": 2, "🍪": 1,
+    "🍎": 1, "🍉": 2, "🍓": 2, "🍌": 1, "🍇": 2, "🥨": 1,
+
+    # Technik
+    "💾": 3, "💿": 2, "📟": 3, "📺": 2, "🖥️": 4, "⌨️": 3,
+    "🖱️": 2, "🔌": 2, "🔋": 2, "📡": 4, "🛰️": 5, "🧲": 3,
+
+    # Dinge
+    "🎲": 2, "🎯": 3, "🧩": 3, "🧠": 4, "🧪": 3, "🧯": 2,
+    "🔧": 2, "🪛": 2, "🧱": 2, "🧭": 3, "🔑": 3, "🏆": 5,
+}
+
 class SpielAbbruch(Exception):
     pass
 
@@ -230,6 +248,10 @@ class Memory:
         anzahl_paare: int = len(karte_vorne)     
         self.grid_view = GridView(anzahl_paare, math.ceil(math.sqrt(anzahl_paare*2)))
 
+        self._score: int = 0
+        self._zuege: int = 0
+        self._treffer: int = 0
+
 
     def msg(self, key: str) -> str:
         return self.rng.choice(MSG[key])
@@ -275,7 +297,9 @@ class Memory:
                 time.sleep(1.5)
                 continue
 
+            self._zuege += 1
             return i, j
+        
 
 
 
@@ -290,14 +314,17 @@ class Memory:
 
                 if self.stapel[i].vergleichen(self.stapel[j]):
                     print(self.msg('match'))
+                    self._treffer += 1
+                    self._score += WERTE[self.stapel[i].symbol]
                 else:
                     print(self.msg('miss'))
                     self.stapel[i].zudecken()
                     self.stapel[j].zudecken()
-
+                    self._score -= 1
                 time.sleep(1.5)
 
             print(self.msg('win'))
+            print(f"Endergebnis: {self._treffer} Treffer, {self._zuege} Züge, Punkte: {self._score}, Trefferquote: {(self._treffer/self._zuege if self._zuege > 0 else 0 )*100:.0f}%")
         except SpielAbbruch:
             print(self.msg('quit'))
 
