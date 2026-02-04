@@ -188,10 +188,13 @@ class GridView:
     def get_index(self, pos: str) -> int | None:
         return self.position.get(pos)
     
-    
+    def get_pos(self, idx:int) -> str | None:
+        return self.cords[idx]
+
 
 
     def render_karten(self, karten: list[str]) -> str:
+
         assert len(karten) == self.anzahl_karten
 
         os.system("cls" if os.name == "nt" else "clear")
@@ -271,7 +274,7 @@ class Memory:
             print("Noch keine Züge vorhanden.")
         else:
             print("Letzte Züge:")
-            kords: list[str]=self.grid_view.cords
+            #kords: list[str]=self.grid_view.cords
             for x in self._history[-5:]:
                 turn_no = x["turn_no"]
                 i = x["i"]
@@ -280,12 +283,13 @@ class Memory:
             
                 if match == True: y = "OK" 
                 else: y ="MISS"
-                
+                z = self.grid_view.get_pos(i)
+                w=self.grid_view.get_pos(j)
 
-                print(f"#{turn_no} {kords[i]} {kords[j]} -> {y}")
+                print(f"#{turn_no} {z} {w} -> {y}")
 
         
-        time.sleep(2)
+        time.sleep(5)
         
 
     def frage_zug(self) -> tuple[int, int]:
@@ -293,7 +297,7 @@ class Memory:
             self.spielfeld()
             
             try:
-                raw = input(self.message("prompt")).strip()
+                raw = input(f"ctrl+c für spielende and history für letzten 5 züge\n{self.message("prompt")} ").strip()
             except KeyboardInterrupt:
                 print()
                 raise SpielAbbruch()
