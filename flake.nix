@@ -34,8 +34,7 @@
           python3Packages.debugpy
           python3Packages.black
           python3Packages.isort
-          vscode                      # proprietäre VSCode-Version
-          tabby-agent                 # CLI für lokalen Tabby-Server/Proxy
+          vscode-fhs                       # proprietäre VSCode-Version
         ];
 
         message = "🐍 VSCode + Tabby + Python development shell ready";
