@@ -63,3 +63,7 @@ while not all(sichtbar in karte_vorne for sichtbar, _ in kombis):
         continue
 
 print("🎉 Alle Paare gefunden! Spiel beendet.")
+
+
+
+
