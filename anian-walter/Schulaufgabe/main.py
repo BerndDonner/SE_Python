@@ -44,6 +44,7 @@ import string
 import time
 import math
 import os
+from turtle import delay
 
 MSG: dict[str, list[str]] = {
     "match": [
@@ -178,10 +179,16 @@ class GridView:
             pos: idx
             for idx, pos in enumerate(coords[:self.anzahl_karten])
         }
+
+        self.index: list[str] = coords[:self.anzahl_karten]
     
     
     def get_index(self, pos: str) -> int | None:
         return self.position.get(pos)
+    
+
+    def get_pos(self, idx: int) -> str:
+        return self.index[idx]
     
 
 
@@ -252,6 +259,8 @@ class Memory:
         self._zuege: int = 0
         self._treffer: int = 0
 
+        self._history: list[tuple[int, int, int, bool]] = []
+
 
     def msg(self, key: str) -> str:
         return self.rng.choice(MSG[key])
@@ -268,6 +277,9 @@ class Memory:
 
             try:
                 raw = input(self.msg('prompt')).strip()
+                if raw.lower() == "history":
+                    self.show_history()
+                    continue
             except KeyboardInterrupt:
                 print()
                 raise SpielAbbruch()
@@ -302,7 +314,6 @@ class Memory:
         
 
 
-
     def spielen(self) -> None:
         try:
             while any(k.aufgedeckt() == False for k in self.stapel):
@@ -323,10 +334,27 @@ class Memory:
                     self._score -= 1
                 time.sleep(1.5)
 
+                match: bool = self.stapel[i].vergleichen(self.stapel[j])
+                self._history.append(
+                (self._zuege, i, j, match)
+                )
+
             print(self.msg('win'))
             print(f"Endergebnis: {self._treffer} Treffer, {self._zuege} Züge, Punkte: {self._score}, Trefferquote: {(self._treffer/self._zuege if self._zuege > 0 else 0 )*100:.0f}%")
         except SpielAbbruch:
             print(self.msg('quit'))
+
+    def show_history(self) -> None:
+        print("\n Letzte 5 Züge:")
+
+        for turn_no, i, j, match in self._history[-5:]:
+            pos_i: str = self.grid_view.get_pos(i)
+            pos_j: str = self.grid_view.get_pos(j)
+            status= "OK" if match else "MISS"
+            print(f"#{turn_no} {pos_i} {pos_j} -> {status}")
+
+        input("Drücke Enter zum Fortfahren...")
+            
 
 
 
