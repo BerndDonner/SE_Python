@@ -172,6 +172,8 @@ class Memory:
             print("🏆 🏁 Glückwunsch! Alle Paare gefunden!")
         except SpielAbbruch:
             print("🛑 🚪 Spiel beendet. 👋")
+    class Zug:
+        def __init__
 
 
 # ------------------------------------------------------------

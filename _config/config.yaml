@@ -28,7 +28,7 @@ models:
       - apply
     defaultCompletionOptions:
       temperature: 0.6
-      maxTokens: 5000
+      maxTokens: 10000
       contextLength: 32000
 
 # lightweight context providers for smarter answers
