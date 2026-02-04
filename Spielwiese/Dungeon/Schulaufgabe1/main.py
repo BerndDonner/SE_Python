@@ -44,6 +44,7 @@ import string
 import time
 import math
 import os
+from dataclasses import dataclass
 from messages import MSG
 
 
@@ -51,25 +52,12 @@ from messages import MSG
 class SpielAbbruch(Exception):
     pass
 
+@dataclass(frozen=True, slots=True)
 class Zug:
-
-    def __init__(self, turn_no: int, pos1: str, pos2: str, result: bool):
-        self._turn_no: int = turn_no
-        self._pos1: str = pos1
-        self._pos2: str = pos2
-        self._result: bool = result
-
-    def turn_no(self):
-        return self._turn_no
-
-    def pos1(self):
-        return self._pos1
-
-    def pos2(self):
-        return self._pos2
-
-    def result(self):
-        return self._result
+    turn_no: int
+    idx1: int
+    idx2: int
+    result: bool
 
 
 class History:
@@ -87,13 +75,11 @@ class History:
             return None
         return self.zuege.pop()
 
-    def render(self, num_zuege: int) -> str:
+    def get_zuege(self, num_zuege: int) -> list[Zug]:
         assert num_zuege >= 0
         num_zuege = min(num_zuege, len(self.zuege))
 
-        lines: list[str] = [f"#{i.turn_no()} {i.pos1()} {i.pos2()} -> {i.result()}" for i in self.zuege[-num_zuege:]]
-
-        return "\n".join(lines) 
+        return self.zuege[-num_zuege:] 
 
 
 class GridView:
@@ -220,25 +206,28 @@ class Memory:
             self.spielfeld()
 
             try:
-                raw = input(self.msg("prompt")).strip()
+                raw: str = input(self.msg("prompt")).strip()
             except KeyboardInterrupt:
                 print()
                 raise SpielAbbruch()
 
             if raw.lower() == "history":
-                print(self.history.render(5))
+                for z in self.history.get_zuege(5):
+                    pos1: str = self.grid_view.get_pos(z.idx1)
+                    pos2: str = self.grid_view.get_pos(z.idx2)
+                    result: str = "MATCH" if z.result else "MISS"
+                                        
+                    print("#" + str(z.turn_no) + " " + pos1 + " " + pos2 + " -> " + result)
                 time.sleep(3)
                 continue
 
             if raw.lower() == "undo":
-                zug = self.history.pop()
+                zug: Zug | None = self.history.pop()
                 if zug == None: continue
                 self.zuege -= 1
-                if zug.result():
-                    i: int = self.grid_view.get_index(zug.pos1())
-                    j: int = self.grid_view.get_index(zug.pos2())
-                    assert i != None, "History an erster Position inkonsistent"
-                    assert j != None, "History an zweiter Position inkonsistent"
+                if zug.result:
+                    i: int = zug.idx1
+                    j: int = zug.idx2
                     assert self.stapel[i].wert() == self.stapel[j].wert(), "Nicht identische Karten in History als Treffer gespeichert"
                     self.stapel[i].zudecken()
                     self.stapel[j].zudecken()
@@ -293,10 +282,10 @@ class Memory:
                     self.treffer += 1
                     self.score += self.stapel[i].wert()
                     print(self.msg("match"))
-                    self.history.push(Zug(self.zuege, self.grid_view.get_pos(i), self.grid_view.get_pos(j), True))
+                    self.history.push(Zug(turn_no=self.zuege, idx1=i, idx2=j, result=True))
                 else:
                     print(self.msg("miss"))
-                    self.history.push(Zug(self.zuege, self.grid_view.get_pos(i), self.grid_view.get_pos(j), False))
+                    self.history.push(Zug(turn_no=self.zuege, idx1=i, idx2=j, result=False))
                     self.score -= 1
                     self.stapel[i].zudecken()
                     self.stapel[j].zudecken()
@@ -304,7 +293,7 @@ class Memory:
                 time.sleep(1.5)
 
             print(self.msg("win"))
-            quote = round(self.treffer * 100 / self.zuege) if self.zuege > 0 else 0
+            quote: int = round(self.treffer * 100 / self.zuege) if self.zuege > 0 else 0
             print(f"📊 Statistik: Züge={self.zuege}, Treffer={self.treffer}, Quote={quote}%, Score={self.score}")
         except SpielAbbruch:
             print(self.msg("quit"))
