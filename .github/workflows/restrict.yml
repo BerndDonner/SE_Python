@@ -156,3 +156,20 @@ jobs:
           fi
 
           echo "✅ Alle Änderungen befinden sich im erlaubten Bereich (${actor}/ oder gemeinsame Bereiche)."
+          
+      # 🧾 Debug: Event-Payload immer als Artifact sichern (für seltene, schwer reproduzierbare Fälle)
+      - name: Save GitHub event payload (event.json)
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp "$GITHUB_EVENT_PATH" "artifacts/event_${GITHUB_EVENT_NAME}_${GITHUB_REF_NAME}_${GITHUB_SHA}.json"
+          echo "Saved: artifacts/event_${GITHUB_EVENT_NAME}_${GITHUB_REF_NAME}_${GITHUB_SHA}.json"
+          ls -lah artifacts
+
+      - name: Upload event payload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: event-json-${{ github.run_number }}
+          path: artifacts/
+          retention-days: 30
