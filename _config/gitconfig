@@ -56,3 +56,36 @@
       git rebase origin/HEAD; \
       git push --force-with-lease origin HEAD:refs/heads/$b; \
     }; f"
+
+    reset-to-remote = "!f(){ set -e; \
+      b=\"$1\"; \
+      if [ -z \"$b\" ]; then b=$(git rev-parse --abbrev-ref HEAD); fi; \
+      if [ \"$b\" = master ] || [ \"$b\" = main ]; then \
+        echo \"ERROR: reset-to-remote nicht auf '$b' ausfuehren.\"; exit 1; \
+      fi; \
+      git fetch --all --prune; \
+      git switch \"$b\"; \
+      git show-ref --verify --quiet \"refs/remotes/origin/$b\" || { \
+        echo \"ERROR: origin/$b nicht gefunden.\"; exit 1; }; \
+      git reset --hard \"origin/$b\"; \
+    }; f"
+
+    abort-op = "!f(){ \
+      set +e; \
+      try(){ \
+        op=\"$1\"; shift; \
+        \"$@\" >/dev/null 2>&1; \
+        rc=$?; \
+        if [ $rc -eq 0 ]; then \
+          echo \"OK: aborted $op\"; \
+          exit 0; \
+        fi; \
+      }; \
+      try rebase      git rebase --abort; \
+      try merge       git merge --abort; \
+      try cherry-pick git cherry-pick --abort; \
+      try revert      git revert --abort; \
+      try am          git am --abort; \
+      try bisect      git bisect reset; \
+      echo \"INFO: no in-progress operation detected.\"; \
+    }; f"
