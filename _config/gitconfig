@@ -81,11 +81,23 @@
           exit 0; \
         fi; \
       }; \
+      \
+      bisect_active(){ \
+        BISECT_LOG=$(git rev-parse --git-path BISECT_LOG 2>/dev/null) || return 1; \
+        [ -f \"$BISECT_LOG\" ] || return 1; \
+        git rev-parse -q --verify BISECT_HEAD >/dev/null 2>&1 || return 1; \
+        return 0; \
+      }; \
+      \
       try rebase      git rebase --abort; \
       try merge       git merge --abort; \
       try cherry-pick git cherry-pick --abort; \
       try revert      git revert --abort; \
       try am          git am --abort; \
-      try bisect      git bisect reset; \
+      \
+      if bisect_active; then \
+        try bisect git bisect reset; \
+      fi; \
+      \
       echo \"INFO: no in-progress operation detected.\"; \
     }; f"
